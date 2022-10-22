@@ -66,10 +66,6 @@ else
     Get-ChildItem -Path $Env:UNITY_PROJECT_PATH\Assets\Editor -Recurse
 }
 
-Write-Output "$Env:BUILD_TARGET"
-Write-Output "$Env:ANDROID_KEYSTORE_NAME"
-Write-Output "$Env:ANDROID_KEYSTORE_BASE64"
-
 if ( "$Env:BUILD_TARGET" -eq "Android" -and -not ([string]::IsNullOrEmpty("$Env:ANDROID_KEYSTORE_NAME")) -and -not ([string]::IsNullOrEmpty("$Env:ANDROID_KEYSTORE_BASE64")) )
 {
     Write-Output "Creating Android keystore."
