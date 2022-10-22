@@ -66,6 +66,17 @@ else
     Get-ChildItem -Path $Env:UNITY_PROJECT_PATH\Assets\Editor -Recurse
 }
 
+if ( "$Env:BUILD_TARGET" -eq "Android" -and -not ([string]::IsNullOrEmpty("$ANDROID_KEYSTORE_NAME")) -and -not ([string]::IsNullOrEmpty("$ANDROID_KEYSTORE_BASE64")) )
+{
+    Write-Output "Creating Android keystore."
+    $keystorePath = "$Env:GITHUB_WORKSPACE\$ANDROID_KEYSTORE_NAME"
+    [System.IO.File]::WriteAllBytes($keystorePath, [System.Convert]::FromBase64String($ANDROID_KEYSTORE_BASE64))
+    Write-Output "Created Android keystore."
+}
+else {
+    Write-Output "Not creating Android keystore."
+}
+
 #
 # Pre-build debug information
 #
@@ -110,18 +121,19 @@ Write-Output "###########################"
 Write-Output ""
 
 & "C:\Program Files\Unity\Hub\Editor\$Env:UNITY_VERSION\Editor\Unity.exe" -quit -batchmode -nographics `
-                                                                          -projectPath $Env:UNITY_PROJECT_PATH `
-                                                                          -executeMethod $Env:BUILD_METHOD `
-                                                                          -buildTarget $Env:BUILD_TARGET `
-                                                                          -customBuildTarget $Env:BUILD_TARGET `
-                                                                          -customBuildPath $Env:CUSTOM_BUILD_PATH `
-                                                                          -buildVersion $Env:VERSION `
-                                                                          -androidVersionCode $Env:ANDROID_VERSION_CODE `
-                                                                          -androidKeystoreName $Env:ANDROID_KEYSTORE_NAME `
-                                                                          -androidKeystorePass $Env:ANDROID_KEYSTORE_PASS `
-                                                                          -androidKeyaliasName $Env:ANDROID_KEYALIAS_NAME `
-                                                                          -androidKeyaliasPass $Env:ANDROID_KEYALIAS_PASS `
-                                                                          -androidTargetSdkVersion $Env:ANDROID_TARGET_SDK_VERSION `
+                                                                          -customBuildName "$Env:BUILD_NAME" `
+                                                                          -buildTarget "$Env:BUILD_TARGET" `
+                                                                          -customBuildTarget "$Env:BUILD_TARGET" `
+                                                                          -customBuildPath "$Env:CUSTOM_BUILD_PATH" `
+                                                                          -executeMethod "$Env:BUILD_METHOD" `
+                                                                          -buildVersion "$Env:VERSION" `
+                                                                          -androidVersionCode "$Env:ANDROID_VERSION_CODE" `
+                                                                          -androidKeystoreName "$Env:ANDROID_KEYSTORE_NAME" `
+                                                                          -androidKeystorePass "$Env:ANDROID_KEYSTORE_PASS" `
+                                                                          -androidKeyaliasName "$Env:ANDROID_KEYALIAS_NAME" `
+                                                                          -androidKeyaliasPass "$Env:ANDROID_KEYALIAS_PASS" `
+                                                                          -androidTargetSdkVersion "$Env:ANDROID_TARGET_SDK_VERSION" `
+                                                                          -projectPath "$Env:UNITY_PROJECT_PATH" `
                                                                           $Env:CUSTOM_PARAMETERS `
                                                                           -logfile | Out-Host
 
