@@ -70,11 +70,11 @@ Write-Output "$Env:BUILD_TARGET"
 Write-Output "$Env:ANDROID_KEYSTORE_NAME"
 Write-Output "$Env:ANDROID_KEYSTORE_BASE64"
 
-if ( "$Env:BUILD_TARGET" -eq "Android" -and -not ([string]::IsNullOrEmpty("$ANDROID_KEYSTORE_NAME")) -and -not ([string]::IsNullOrEmpty("$ANDROID_KEYSTORE_BASE64")) )
+if ( "$Env:BUILD_TARGET" -eq "Android" -and -not ([string]::IsNullOrEmpty("$Env:ANDROID_KEYSTORE_NAME")) -and -not ([string]::IsNullOrEmpty("$Env:ANDROID_KEYSTORE_BASE64")) )
 {
     Write-Output "Creating Android keystore."
-    $keystorePath = "$Env:GITHUB_WORKSPACE\$ANDROID_KEYSTORE_NAME"
-    [System.IO.File]::WriteAllBytes($keystorePath, [System.Convert]::FromBase64String($ANDROID_KEYSTORE_BASE64))
+    $keystorePath = "$Env:GITHUB_WORKSPACE\$Env:ANDROID_KEYSTORE_NAME"
+    [System.IO.File]::WriteAllBytes($keystorePath, [System.Convert]::FromBase64String($Env:ANDROID_KEYSTORE_BASE64))
     Write-Output "Created Android keystore."
 }
 else {
