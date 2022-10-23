@@ -120,7 +120,7 @@ Write-Output "#    Building project     #"
 Write-Output "###########################"
 Write-Output ""
 
-& "C:\Program Files\Unity\Hub\Editor\$Env:UNITY_VERSION\Editor\Unity.exe" -quit -batchmode `
+& "C:\Program Files\Unity\Hub\Editor\$Env:UNITY_VERSION\Editor\Unity.exe" -quit -batchmode -nographics`
                                                                           -customBuildName "$Env:BUILD_NAME" `
                                                                           -buildTarget "$Env:BUILD_TARGET" `
                                                                           -customBuildTarget "$Env:BUILD_TARGET" `
