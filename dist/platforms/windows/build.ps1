@@ -120,6 +120,10 @@ Write-Output "#    Building project     #"
 Write-Output "###########################"
 Write-Output ""
 
+# If $Env:CUSTOM_PARAMETERS contains spaces and is passed directly on the command line to Unity, powershell will wrap it
+# in double quotes.  To avoid this, parse $Env:CUSTOM_PARAMETERS into an array, while respecting any quotations within the string.
+$_, $customParametersArray = Invoke-Expression('Write-Output -- "" ' + $Env:CUSTOM_PARAMETERS)
+
 & "C:\Program Files\Unity\Hub\Editor\$Env:UNITY_VERSION\Editor\Unity.exe" -quit -batchmode -nographics `
                                                                           -customBuildName "$Env:BUILD_NAME" `
                                                                           -buildTarget "$Env:BUILD_TARGET" `
@@ -134,7 +138,7 @@ Write-Output ""
                                                                           -androidKeyaliasPass "$Env:ANDROID_KEYALIAS_PASS" `
                                                                           -androidTargetSdkVersion "$Env:ANDROID_TARGET_SDK_VERSION" `
                                                                           -projectPath "$Env:UNITY_PROJECT_PATH" `
-                                                                          $Env:CUSTOM_PARAMETERS `
+                                                                          $customParametersArray `
                                                                           -logfile | Out-Host
 
 # Catch exit code
