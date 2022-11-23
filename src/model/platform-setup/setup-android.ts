@@ -6,7 +6,7 @@ class SetupAndroid {
   public static async setup(buildParameters: BuildParameters) {
     const { targetPlatform, androidKeystoreBase64, androidKeystoreName, projectPath } = buildParameters;
 
-    if (targetPlatform === 'Android' && androidKeystoreBase64 != '' && androidKeystoreName != '') {
+    if (targetPlatform === 'Android' && androidKeystoreBase64 !== '' && androidKeystoreName !== '') {
       SetupAndroid.setupAndroidRun(androidKeystoreBase64, androidKeystoreName, projectPath);
     }
   }
