@@ -38,10 +38,13 @@ class SetupMac {
 
     switch (buildParameters.targetPlatform) {
       case 'iOS':
-        command += ` --module ios `;
+        command += `--module ios `;
         break;
       case 'StandaloneOSX':
-        command += ` --module mac-il2cpp `;
+        command += `--module mac-il2cpp `;
+        break;
+      case 'android':
+        command += `--module android `;
         break;
     }
 
