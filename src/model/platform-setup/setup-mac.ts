@@ -44,6 +44,7 @@ class SetupMac {
         command += `--module mac-il2cpp `;
         break;
       case 'android':
+      case 'Android':
         command += `--module android `;
         break;
     }
