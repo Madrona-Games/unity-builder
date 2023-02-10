@@ -4,7 +4,7 @@ import { exec } from '@actions/exec';
 import fs from 'fs';
 
 class SetupMac {
-  static unityHubPath = `"/Applications/Unity Hub.app/Contents/MacOS/Unity Hub"`;
+  static unityHubPath = `/Applications/Unity Hub.app/Contents/MacOS/Unity Hub`;
 
   public static async setup(buildParameters: BuildParameters, actionFolder: string) {
     const unityEditorPath = `/Applications/Unity/Hub/Editor/${buildParameters.editorVersion}/Unity.app/Contents/MacOS/Unity`;
