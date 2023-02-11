@@ -6,12 +6,13 @@ import { restoreCache, saveCache } from '@actions/cache';
 import fs from 'fs';
 
 class SetupMac {
-  static unityHubPath = `/Applications/Unity Hub.app/Contents/MacOS/Unity Hub`;
+  static unityHubBasePath = `/Applications/Unity\\ Hub.app`;
+  static unityHubExecPath = `${SetupMac.unityHubBasePath}/Contents/MacOS/Unity\\ Hub`;
 
   public static async setup(buildParameters: BuildParameters, actionFolder: string) {
     const unityEditorPath = `/Applications/Unity/Hub/Editor/${buildParameters.editorVersion}/Unity.app/Contents/MacOS/Unity`;
 
-    if (!fs.existsSync(this.unityHubPath)) {
+    if (!fs.existsSync(this.unityHubExecPath)) {
       await SetupMac.installUnityHub(buildParameters);
     }
 
@@ -23,17 +24,16 @@ class SetupMac {
   }
 
   private static async installUnityHub(buildParameters, silent = false) {
-    if (!fs.existsSync(this.unityHubPath)) {
-      const unityHubBasePath = '/Applications/Unity\\ Hub.app';
+    if (!fs.existsSync(this.unityHubExecPath)) {
       const targetHubVersion =
         buildParameters.unityHubVersionOnMac !== ''
           ? buildParameters.unityHubVersionOnMac
-          : this.getLatestUnityHubVersion();
+          : SetupMac.getLatestUnityHubVersion();
 
       const restoreKey = `Cache-MacOS-UnityHub@${targetHubVersion}`;
 
       if (buildParameters.cacheUnityInstallationOnMac) {
-        const cacheId = await restoreCache([unityHubBasePath], restoreKey);
+        const cacheId = await restoreCache([this.unityHubBasePath], restoreKey);
         if (cacheId) {
           // Cache restored successfully, unity hub is installed now
           return;
@@ -52,7 +52,7 @@ class SetupMac {
       }
 
       if (buildParameters.cacheUnityInstallationOnMac) {
-        await saveCache([unityHubBasePath], restoreKey);
+        await saveCache([this.unityHubBasePath], restoreKey);
       }
     }
   }
@@ -86,7 +86,7 @@ class SetupMac {
     }
 
     const unityChangeset = await getUnityChangeset(buildParameters.editorVersion);
-    let command = `${this.unityHubPath} -- --headless install \
+    let command = `${this.unityHubExecPath} -- --headless install \
                                           --version ${buildParameters.editorVersion} \
                                           --changeset ${unityChangeset.changeset} `;
 
