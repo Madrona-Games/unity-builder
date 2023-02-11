@@ -24,36 +24,36 @@ class SetupMac {
   }
 
   private static async installUnityHub(buildParameters, silent = false) {
-    if (!fs.existsSync(this.unityHubExecPath)) {
-      const targetHubVersion =
-        buildParameters.unityHubVersionOnMac !== ''
-          ? buildParameters.unityHubVersionOnMac
-          : SetupMac.getLatestUnityHubVersion();
+    // Can't use quotes in the cache package so we need a different path
+    const unityHubCachePath = `/Applications/Unity\\ Hub.app`;
 
-      const restoreKey = `Cache-MacOS-UnityHub@${targetHubVersion}`;
+    const targetHubVersion =
+      buildParameters.unityHubVersionOnMac !== ''
+        ? buildParameters.unityHubVersionOnMac
+        : SetupMac.getLatestUnityHubVersion();
 
-      if (buildParameters.cacheUnityInstallationOnMac) {
-        const cacheId = await restoreCache([this.unityHubBasePath], restoreKey);
-        if (cacheId) {
-          // Cache restored successfully, unity hub is installed now
-          return;
-        }
+    const restoreKey = `Cache-MacOS-UnityHub@${targetHubVersion}`;
+
+    if (buildParameters.cacheUnityInstallationOnMac) {
+      const cacheId = await restoreCache([unityHubCachePath], restoreKey);
+      if (cacheId) {
+        // Cache restored successfully, unity hub is installed now
+        return;
       }
+    }
 
-      const commandSuffix =
-        buildParameters.unityHubVersionOnMac !== '' ? `@${buildParameters.unityHubVersionOnMac}` : '';
-      const command = `brew install unity-hub${commandSuffix}`;
+    const commandSuffix = buildParameters.unityHubVersionOnMac !== '' ? `@${buildParameters.unityHubVersionOnMac}` : '';
+    const command = `brew install unity-hub${commandSuffix}`;
 
-      // Ignoring return code because the log seems to overflow the internal buffer which triggers
-      // a false error
-      const errorCode = await exec(command, undefined, { silent, ignoreReturnCode: true });
-      if (errorCode) {
-        throw new Error(`There was an error installing the Unity Editor. See logs above for details.`);
-      }
+    // Ignoring return code because the log seems to overflow the internal buffer which triggers
+    // a false error
+    const errorCode = await exec(command, undefined, { silent, ignoreReturnCode: true });
+    if (errorCode) {
+      throw new Error(`There was an error installing the Unity Editor. See logs above for details.`);
+    }
 
-      if (buildParameters.cacheUnityInstallationOnMac) {
-        await saveCache([this.unityHubBasePath], restoreKey);
-      }
+    if (buildParameters.cacheUnityInstallationOnMac) {
+      await saveCache([unityHubCachePath], restoreKey);
     }
   }
 
