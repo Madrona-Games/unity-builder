@@ -73,7 +73,7 @@ class SetupMac {
 
   private static async installUnity(buildParameters: BuildParameters, silent = false) {
     const unityEditorPath = `/Applications/Unity/Hub/Editor/${buildParameters.editorVersion}`;
-    const key = `Cache-MacOS-UnityEditor@${buildParameters.editorVersion}`;
+    const key = `Cache-MacOS-UnityEditor-With-Module-${buildParameters.targetPlatform}@${buildParameters.editorVersion}`;
 
     if (buildParameters.cacheUnityInstallationOnMac) {
       const cacheId = await restoreCache([unityEditorPath], key);
