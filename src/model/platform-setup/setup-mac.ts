@@ -59,13 +59,12 @@ class SetupMac {
 
   /**
    * Gets the latest version of Unity Hub available on brew
-   * @param silent Whether to suppress the output of the command
    * @returns The latest version of Unity Hub available on brew
    */
-  private static async getLatestUnityHubVersion(silent = false): Promise<string> {
+  private static async getLatestUnityHubVersion(): Promise<string> {
     // Need to check if the latest version available is the same as the one we have cached
     const hubVersionCommand = `/bin/bash -c "brew info unity-hub | grep -o '[0-9]\\+\\.[0-9]\\+\\.[0-9]\\+'"`;
-    const result = await getExecOutput(hubVersionCommand, undefined, { silent });
+    const result = await getExecOutput(hubVersionCommand, undefined, { silent: true });
     if (result.exitCode === 0 && result.stdout !== '') {
       return result.stdout;
     }
