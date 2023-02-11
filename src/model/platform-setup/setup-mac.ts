@@ -24,7 +24,7 @@ class SetupMac {
 
   private static async installUnityHub(buildParameters, silent = false) {
     if (!fs.existsSync(this.unityHubPath)) {
-      const unityHubBasePath = encodeURIComponent(`/Applications/Unity Hub.app`);
+      const unityHubBasePath = '/Applications/Unity Hub.app';
       const targetHubVersion =
         buildParameters.unityHubVersionOnMac !== ''
           ? buildParameters.unityHubVersionOnMac
@@ -40,7 +40,9 @@ class SetupMac {
         }
       }
 
-      const command = `brew install unity-hub${buildParameters.unityHubVersionOnMac}`;
+      const commandSuffix =
+        buildParameters.unityHubVersionOnMac !== '' ? `@${buildParameters.unityHubVersionOnMac}` : '';
+      const command = `brew install unity-hub${commandSuffix}}`;
 
       // Ignoring return code because the log seems to overflow the internal buffer which triggers
       // a false error
