@@ -2,6 +2,7 @@ import { BuildParameters } from '..';
 import { getUnityChangeset } from 'unity-changeset';
 import { exec, getExecOutput } from '@actions/exec';
 import { restoreCache, saveCache } from '@actions/cache';
+
 import fs from 'fs';
 
 class SetupMac {
@@ -23,8 +24,7 @@ class SetupMac {
 
   private static async installUnityHub(buildParameters, silent = false) {
     if (!fs.existsSync(this.unityHubPath)) {
-      const unityHubBasePath = `/Applications/Unity\\ Hub.app`;
-
+      const unityHubBasePath = encodeURIComponent(`/Applications/Unity Hub.app`);
       const targetHubVersion =
         buildParameters.unityHubVersionOnMac !== ''
           ? buildParameters.unityHubVersionOnMac
