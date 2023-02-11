@@ -1,6 +1,7 @@
 import { BuildParameters } from '..';
 import { getUnityChangeset } from 'unity-changeset';
-import { exec } from '@actions/exec';
+import { exec, getExecOutput } from '@actions/exec';
+import { restoreCache, saveCache } from '@actions/cache';
 import fs from 'fs';
 
 class SetupMac {
@@ -10,7 +11,7 @@ class SetupMac {
     const unityEditorPath = `/Applications/Unity/Hub/Editor/${buildParameters.editorVersion}/Unity.app/Contents/MacOS/Unity`;
 
     if (!fs.existsSync(this.unityHubPath)) {
-      await SetupMac.installUnityHub();
+      await SetupMac.installUnityHub(buildParameters);
     }
 
     if (!fs.existsSync(unityEditorPath)) {
@@ -20,19 +21,68 @@ class SetupMac {
     await SetupMac.setEnvironmentVariables(buildParameters, actionFolder);
   }
 
-  private static async installUnityHub(silent = false) {
-    const command = 'brew install unity-hub';
+  private static async installUnityHub(buildParameters, silent = false) {
     if (!fs.existsSync(this.unityHubPath)) {
+      const unityHubBasePath = `/Applications/Unity Hub.app`;
+
+      const targetHubVersion =
+        buildParameters.unityHubVersionOnMac !== ''
+          ? buildParameters.unityHubVersionOnMac
+          : this.getLatestUnityHubVersion();
+
+      const restoreKey = `Cache-MacOS-UnityHub@${targetHubVersion}`;
+
+      if (buildParameters.cacheUnityInstallationOnMac) {
+        const cacheId = await restoreCache([unityHubBasePath], restoreKey);
+        if (cacheId) {
+          // Cache restored successfully, unity hub is installed now
+          return;
+        }
+      }
+
+      const command = `brew install unity-hub${buildParameters.unityHubVersionOnMac}`;
+
       // Ignoring return code because the log seems to overflow the internal buffer which triggers
       // a false error
       const errorCode = await exec(command, undefined, { silent, ignoreReturnCode: true });
       if (errorCode) {
         throw new Error(`There was an error installing the Unity Editor. See logs above for details.`);
       }
+
+      if (buildParameters.cacheUnityInstallationOnMac) {
+        await saveCache([unityHubBasePath], restoreKey);
+      }
     }
   }
 
+  /**
+   * Gets the latest version of Unity Hub available on brew
+   * @param silent Whether to suppress the output of the command
+   * @returns The latest version of Unity Hub available on brew
+   */
+  private static async getLatestUnityHubVersion(silent = false): Promise<string> {
+    // Need to check if the latest version available is the same as the one we have cached
+    const hubVersionCommand = `brew info unity-hub | grep -o '[0-9]\\+\\.[0-9]\\+\\.[0-9]\\+'`;
+    const result = await getExecOutput(hubVersionCommand, undefined, { silent });
+    if (result.exitCode === 0 && result.stdout !== '') {
+      return result.stdout;
+    }
+
+    return '';
+  }
+
   private static async installUnity(buildParameters: BuildParameters, silent = false) {
+    const unityEditorPath = `/Applications/Unity/Hub/Editor/${buildParameters.editorVersion}`;
+    const key = `Cache-MacOS-UnityEditor@${buildParameters.editorVersion}`;
+
+    if (buildParameters.cacheUnityInstallationOnMac) {
+      const cacheId = await restoreCache([unityEditorPath], key);
+      if (cacheId) {
+        // Cache restored successfully, unity editor is installed now
+        return;
+      }
+    }
+
     const unityChangeset = await getUnityChangeset(buildParameters.editorVersion);
     let command = `${this.unityHubPath} -- --headless install \
                                           --version ${buildParameters.editorVersion} \
@@ -65,6 +115,10 @@ class SetupMac {
     const errorCode = await exec(command, undefined, { silent, ignoreReturnCode: true });
     if (errorCode) {
       throw new Error(`There was an error installing the Unity Editor. See logs above for details.`);
+    }
+
+    if (buildParameters.cacheUnityInstallationOnMac) {
+      await saveCache([unityEditorPath], key);
     }
   }
 
