@@ -23,7 +23,7 @@ class SetupMac {
 
   private static async installUnityHub(buildParameters, silent = false) {
     if (!fs.existsSync(this.unityHubPath)) {
-      const unityHubBasePath = `"/Applications/Unity Hub.app"`;
+      const unityHubBasePath = `/Applications/Unity\\ Hub.app`;
 
       const targetHubVersion =
         buildParameters.unityHubVersionOnMac !== ''
