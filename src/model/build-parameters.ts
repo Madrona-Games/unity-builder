@@ -178,6 +178,10 @@ class BuildParameters {
           return `${filename}.aab`;
         case `androidStudioProject`:
           return filename;
+        default:
+          throw new Error(
+            `Unknown Android Export Type: ${androidExportType}. Must be one of androidPackage for apk, androidAppBundle for aab, androidStudioProject for android project`,
+          );
       }
     }
 
