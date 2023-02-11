@@ -1,4 +1,4 @@
-import { execWithErrorCheck } from './exec-with-error-check';
+import { exec } from '@actions/exec';
 import ImageEnvironmentFactory from './image-environment-factory';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
@@ -23,9 +23,9 @@ class Docker {
     }
     if (options !== false) {
       options.silent = silent;
-      await execWithErrorCheck(runCommand, undefined, options);
+      await exec(runCommand, undefined, options);
     } else {
-      await execWithErrorCheck(runCommand, undefined, { silent });
+      await exec(runCommand, undefined, { silent });
     }
   }
 
