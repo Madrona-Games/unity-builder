@@ -47,7 +47,7 @@ export default class Versioning {
    * The commit SHA that triggered the workflow run.
    */
   static get sha() {
-    return process.env.GITHUB_SHA;
+    return 'HEAD';
   }
 
   /**

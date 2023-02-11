@@ -134,6 +134,7 @@ class Input {
   }
 
   static get androidAppBundle() {
+    core.warning('androidAppBundle is deprecated, please use androidExportType instead');
     const input = Input.getInput('androidAppBundle') || false;
 
     return input === 'true';
