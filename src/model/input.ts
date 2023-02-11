@@ -143,6 +143,7 @@ class Input {
   static get androidExportType() {
     // TODO: remove this in V3
     const exportType = Input.getInput('androidExportType');
+    core.info(`androidExportType: ${exportType}`);
 
     if (exportType) {
       return exportType || 'androidPackage';
