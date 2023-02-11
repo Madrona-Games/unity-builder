@@ -3,7 +3,6 @@ import { getUnityChangeset } from 'unity-changeset';
 import { exec, getExecOutput } from '@actions/exec';
 import { restoreCache, saveCache } from '@actions/cache';
 import fs from 'fs';
-import * as core from '@actions/core';
 
 class SetupMac {
   static unityHubPath = `/Applications/Unity Hub.app/Contents/MacOS/Unity Hub`;
@@ -24,7 +23,7 @@ class SetupMac {
 
   private static async installUnityHub(buildParameters, silent = false) {
     if (!fs.existsSync(this.unityHubPath)) {
-      const unityHubBasePath = `/Applications/Unity Hub.app`;
+      const unityHubBasePath = `"/Applications/Unity Hub.app"`;
 
       const targetHubVersion =
         buildParameters.unityHubVersionOnMac !== ''
@@ -66,8 +65,6 @@ class SetupMac {
     const hubVersionCommand = `/bin/bash -c "brew info unity-hub | grep -o '[0-9]\\+\\.[0-9]\\+\\.[0-9]\\+'"`;
     const result = await getExecOutput(hubVersionCommand, undefined, { silent });
     if (result.exitCode === 0 && result.stdout !== '') {
-      core.debug(result.stdout);
-
       return result.stdout;
     }
 
@@ -75,7 +72,7 @@ class SetupMac {
   }
 
   private static async installUnity(buildParameters: BuildParameters, silent = false) {
-    const unityEditorPath = `/Applications/Unity/Hub/Editor/${buildParameters.editorVersion}`;
+    const unityEditorPath = `"/Applications/Unity/Hub/Editor/${buildParameters.editorVersion}"`;
     const key = `Cache-MacOS-UnityEditor-With-Module-${buildParameters.targetPlatform}@${buildParameters.editorVersion}`;
 
     if (buildParameters.cacheUnityInstallationOnMac) {
