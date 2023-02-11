@@ -30,7 +30,7 @@ class SetupMac {
     const targetHubVersion =
       buildParameters.unityHubVersionOnMac !== ''
         ? buildParameters.unityHubVersionOnMac
-        : SetupMac.getLatestUnityHubVersion();
+        : await SetupMac.getLatestUnityHubVersion();
 
     const restoreKey = `Cache-MacOS-UnityHub@${targetHubVersion}`;
 
