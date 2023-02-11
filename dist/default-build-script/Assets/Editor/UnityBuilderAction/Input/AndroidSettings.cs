@@ -8,7 +8,6 @@ namespace UnityBuilderAction.Input
   {
     public static void Apply(Dictionary<string, string> options)
     {
-      EditorUserBuildSettings.buildAppBundle = options["customBuildPath"].EndsWith(".aab");
 #if UNITY_2019_1_OR_NEWER
       if (options.TryGetValue("androidKeystoreName", out string keystoreName) && !string.IsNullOrEmpty(keystoreName))
       {
@@ -35,6 +34,25 @@ namespace UnityBuilderAction.Input
               UnityEngine.Debug.Log("Failed to parse androidTargetSdkVersion! Fallback to AndroidApiLevelAuto");
           }
           PlayerSettings.Android.targetSdkVersion = targetSdkVersion;
+      }
+
+      if (options.TryGetValue("androidExportType", out string androidExportType) && !string.IsNullOrEmpty(androidExportType))
+      {
+        switch (androidExportType)
+        {
+          case "androidStudioProject":
+            EditorUserBuildSettings.exportAsGoogleAndroidProject = true;
+            EditorUserBuildSettings.buildAppBundle = false;
+            break;
+          case "androidAppBundle":
+            EditorUserBuildSettings.buildAppBundle = true;
+            EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
+            break;
+          default:
+            EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
+            EditorUserBuildSettings.buildAppBundle = false;
+            break;
+        }
       }
     }
   }

@@ -255,7 +255,7 @@ export default class Versioning {
    * identifies the current commit.
    */
   static async getVersionDescription() {
-    return this.git(['describe', '--long', '--tags', '--always', 'HEAD']);
+    return this.git(['describe', '--long', '--tags', '--always', this.sha]);
   }
 
   /**
@@ -303,7 +303,7 @@ export default class Versioning {
    * Note: HEAD should not be used, as it may be detached, resulting in an additional count.
    */
   static async getTotalNumberOfCommits() {
-    const numberOfCommitsAsString = await this.git(['rev-list', '--count', 'HEAD']);
+    const numberOfCommitsAsString = await this.git(['rev-list', '--count', this.sha]);
 
     return Number.parseInt(numberOfCommitsAsString, 10);
   }

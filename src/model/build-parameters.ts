@@ -33,6 +33,8 @@ class BuildParameters {
   public androidKeyaliasPass!: string;
   public androidTargetSdkVersion!: string;
   public androidSdkManagerParameters!: string;
+  public androidExportType!: string;
+
   public customParameters!: string;
   public sshAgent!: string;
   public cloudRunnerCluster!: string;
@@ -75,7 +77,7 @@ class BuildParameters {
   public unityHubVersionOnMac!: string;
 
   static async create(): Promise<BuildParameters> {
-    const buildFile = this.parseBuildFile(Input.buildName, Input.targetPlatform, Input.androidAppBundle);
+    const buildFile = this.parseBuildFile(Input.buildName, Input.targetPlatform, Input.androidExportType);
     const editorVersion = UnityVersioning.determineUnityVersion(Input.projectPath, Input.unityVersion);
     const buildVersion = await Versioning.determineBuildVersion(Input.versioningStrategy, Input.specifiedVersion);
     const androidVersionCode = AndroidVersioning.determineVersionCode(buildVersion, Input.androidVersionCode);
@@ -120,6 +122,7 @@ class BuildParameters {
       androidKeyaliasPass: Input.androidKeyaliasPass,
       androidTargetSdkVersion: Input.androidTargetSdkVersion,
       androidSdkManagerParameters,
+      androidExportType: Input.androidExportType,
       customParameters: Input.customParameters,
       sshAgent: Input.sshAgent,
       gitPrivateToken: Input.gitPrivateToken || (await GithubCliReader.GetGitHubAuthToken()),
@@ -162,19 +165,26 @@ class BuildParameters {
     };
   }
 
-  static parseBuildFile(filename, platform, androidAppBundle) {
+  static parseBuildFile(filename: string, platform: string, androidExportType: string): string {
     if (Platform.isWindows(platform)) {
       return `${filename}.exe`;
     }
 
     if (Platform.isAndroid(platform)) {
-      return androidAppBundle ? `${filename}.aab` : `${filename}.apk`;
+      switch (androidExportType) {
+        case `androidPackage`:
+          return `${filename}.apk`;
+        case `androidAppBundle`:
+          return `${filename}.aab`;
+        case `androidStudioProject`:
+          return filename;
+      }
     }
 
     return filename;
   }
 
-  static getSerialFromLicenseFile(license) {
+  static getSerialFromLicenseFile(license: string) {
     const startKey = `<DeveloperData Value="`;
     const endKey = `"/>`;
     const startIndex = license.indexOf(startKey) + startKey.length;

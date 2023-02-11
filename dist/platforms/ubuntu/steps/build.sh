@@ -133,6 +133,7 @@ unity-editor \
   -androidKeyaliasName "$ANDROID_KEYALIAS_NAME" \
   -androidKeyaliasPass "$ANDROID_KEYALIAS_PASS" \
   -androidTargetSdkVersion "$ANDROID_TARGET_SDK_VERSION" \
+  -androidExportType "$ANDROID_EXPORT_TYPE" \
   $CUSTOM_PARAMETERS
 
 # Catch exit code

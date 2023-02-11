@@ -139,6 +139,22 @@ class Input {
     return input === 'true';
   }
 
+  static get androidExportType() {
+    // TODO: remove this in V3
+    const exportType = Input.getInput('androidExportType');
+
+    if (exportType) {
+      return exportType || 'androidPackage';
+    }
+
+    return Input.androidAppBundle ? 'androidAppBundle' : 'androidPackage';
+
+    // End TODO
+
+    // Use this in V3 when androidAppBundle is removed
+    // return Input.getInput('androidExportType') || 'androidPackage';
+  }
+
   static get androidKeystoreName() {
     return Input.getInput('androidKeystoreName') || '';
   }
