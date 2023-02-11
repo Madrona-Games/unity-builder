@@ -42,7 +42,7 @@ class SetupMac {
 
       const commandSuffix =
         buildParameters.unityHubVersionOnMac !== '' ? `@${buildParameters.unityHubVersionOnMac}` : '';
-      const command = `brew install unity-hub${commandSuffix}}`;
+      const command = `brew install unity-hub${commandSuffix}`;
 
       // Ignoring return code because the log seems to overflow the internal buffer which triggers
       // a false error
