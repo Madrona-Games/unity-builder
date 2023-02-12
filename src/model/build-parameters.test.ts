@@ -95,35 +95,6 @@ describe('BuildParameters', () => {
       await expect(BuildParameters.create()).resolves.toEqual(expect.objectContaining({ buildFile: mockValue }));
     });
 
-    // test.each([Platform.types.StandaloneWindows, Platform.types.StandaloneWindows64])(
-    //   'appends exe for %s',
-    //   async (targetPlatform) => {
-    //     jest.spyOn(Input, 'targetPlatform', 'get').mockReturnValue(targetPlatform);
-    //     jest.spyOn(Input, 'buildName', 'get').mockReturnValue(targetPlatform);
-    //     await expect(BuildParameters.create()).resolves.toEqual(
-    //       expect.objectContaining({ buildFile: `${targetPlatform}.exe` }),
-    //     );
-    //   },
-    // );
-
-    // test.each([Platform.types.Android])('appends apk for %s', async (targetPlatform) => {
-    //   jest.spyOn(Input, 'targetPlatform', 'get').mockReturnValue(targetPlatform);
-    //   jest.spyOn(Input, 'buildName', 'get').mockReturnValue(targetPlatform);
-    //   jest.spyOn(Input, 'androidExportType', 'get').mockReturnValue('androidAppBundle');
-    //   await expect(BuildParameters.create()).resolves.toEqual(
-    //     expect.objectContaining({ buildFile: `${targetPlatform}.aab` }),
-    //   );
-    // });
-
-    // test.each([Platform.types.Android])('appends apk for %s', async (targetPlatform) => {
-    //   jest.spyOn(Input, 'targetPlatform', 'get').mockReturnValue(targetPlatform);
-    //   jest.spyOn(Input, 'buildName', 'get').mockReturnValue(targetPlatform);
-    //   jest.spyOn(Input, 'androidExportType', 'get').mockReturnValue('androidStudioProject');
-    //   await expect(BuildParameters.create()).resolves.toEqual(
-    //     expect.objectContaining({ buildFile: `${targetPlatform}` }),
-    //   );
-    // });
-
     test.each`
       targetPlatform                        | expectedExtension | androidExportType
       ${Platform.types.Android}             | ${'.apk'}         | ${'androidPackage'}
