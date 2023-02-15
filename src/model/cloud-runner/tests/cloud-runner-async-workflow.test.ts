@@ -5,7 +5,7 @@ import { Cli } from '../../cli/cli';
 import CloudRunnerOptions from '../cloud-runner-options';
 import setups from './cloud-runner-suite.test';
 
-async function CreateParameters(overrides) {
+async function CreateParameters(overrides: any) {
   if (overrides) Cli.options = overrides;
 
   return BuildParameters.create();

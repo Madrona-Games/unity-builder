@@ -33,7 +33,7 @@ describe('BuildParameters', () => {
     it('determines the unity version only once', async () => {
       jest.spyOn(UnityVersioning, 'determineUnityVersion').mockImplementation(() => '2019.2.11f1');
       await BuildParameters.create();
-      await expect(UnityVersioning.determineUnityVersion).toHaveBeenCalledTimes(1);
+      expect(UnityVersioning.determineUnityVersion).toHaveBeenCalledTimes(1);
     });
 
     it('returns the android version code with provided input', async () => {
@@ -53,7 +53,7 @@ describe('BuildParameters', () => {
     it('determines the android sdk manager parameters only once', async () => {
       jest.spyOn(AndroidVersioning, 'determineSdkManagerParameters').mockImplementation(() => 'platforms;android-30');
       await BuildParameters.create();
-      await expect(AndroidVersioning.determineSdkManagerParameters).toHaveBeenCalledTimes(1);
+      expect(AndroidVersioning.determineSdkManagerParameters).toHaveBeenCalledTimes(1);
     });
 
     it('returns the targetPlatform', async () => {

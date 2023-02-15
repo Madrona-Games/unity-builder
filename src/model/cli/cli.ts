@@ -13,13 +13,14 @@ import GitHub from '../github';
 import { TaskParameterSerializer } from '../cloud-runner/services/task-parameter-serializer';
 import { CloudRunnerFolders } from '../cloud-runner/services/cloud-runner-folders';
 import { CloudRunnerSystem } from '../cloud-runner/services/cloud-runner-system';
+import { OptionValues } from 'commander';
 
 export class Cli {
-  public static options;
+  public static options: OptionValues | undefined;
   static get isCliMode() {
     return Cli.options !== undefined && Cli.options.mode !== undefined && Cli.options.mode !== '';
   }
-  public static query(key, alternativeKey) {
+  public static query(key: string, alternativeKey: string) {
     if (Cli.options && Cli.options[key] !== undefined) {
       return Cli.options[key];
     }

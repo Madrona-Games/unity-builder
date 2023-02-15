@@ -192,7 +192,7 @@ class AWSTaskRunner {
   }
 
   private static logRecords(
-    records,
+    records: any,
     iterator: string,
     shouldReadLogs: boolean,
     output: string,
@@ -226,7 +226,7 @@ class AWSTaskRunner {
     }).promise();
   }
 
-  private static async getLogIterator(stream) {
+  private static async getLogIterator(stream: AWS.Kinesis.DescribeStreamOutput) {
     return (
       (
         await AWSTaskRunner.Kinesis.getShardIterator({

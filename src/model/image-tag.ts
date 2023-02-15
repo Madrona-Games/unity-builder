@@ -1,7 +1,6 @@
 import Platform from './platform';
 
 import BuildParameters from './build-parameters';
-import Input from './input';
 
 class ImageTag {
   public repository: string;
@@ -14,8 +13,8 @@ class ImageTag {
   public imageRollingVersion: number;
   public imagePlatformPrefix: string;
 
-  constructor(imageProperties: Partial<BuildParameters>) {
-    const { editorVersion = '2019.2.11f1', targetPlatform, customImage, cloudRunnerBuilderPlatform } = imageProperties;
+  constructor(imageProperties: BuildParameters) {
+    const { editorVersion, targetPlatform, customImage, cloudRunnerBuilderPlatform } = imageProperties;
 
     if (!ImageTag.versionPattern.test(editorVersion)) {
       throw new Error(`Invalid version "${editorVersion}".`);
@@ -39,8 +38,8 @@ class ImageTag {
     this.imageRollingVersion = 1; // Will automatically roll to the latest non-breaking version.
   }
 
-  static get versionPattern() {
-    return /^20\d{2}\.\d\.\w{3,4}|3$/;
+  static get versionPattern(): RegExp {
+    return /^(20\d{2}\.\d\.\w{3,4}|3)$/;
   }
 
   static get targetPlatformSuffixes() {
@@ -60,7 +59,7 @@ class ImageTag {
     };
   }
 
-  static getImagePlatformPrefixes(platform) {
+  static getImagePlatformPrefixes(platform: string): string {
     switch (platform) {
       case 'win32':
         return 'windows';
@@ -71,7 +70,7 @@ class ImageTag {
     }
   }
 
-  static getTargetPlatformToTargetPlatformSuffixMap(platform, version) {
+  static getTargetPlatformToTargetPlatformSuffixMap(platform: string, version: string): string {
     const { generic, webgl, mac, windows, windowsIl2cpp, wsaPlayer, linux, linuxIl2cpp, android, ios, tvos, facebook } =
       ImageTag.targetPlatformSuffixes;
 
@@ -84,7 +83,7 @@ class ImageTag {
       case Platform.types.StandaloneWindows:
       case Platform.types.StandaloneWindows64:
         // Can only build windows-il2cpp on a windows based system
-        if (Input.useIL2Cpp && process.platform === 'win32') {
+        if (process.platform === 'win32') {
           // Unity versions before 2019.3 do not support il2cpp
           if (major >= 2020 || (major === 2019 && minor >= 3)) {
             return windowsIl2cpp;
@@ -97,7 +96,7 @@ class ImageTag {
         return windows;
       case Platform.types.StandaloneLinux64: {
         // Unity versions before 2019.3 do not support il2cpp
-        if ((Input.useIL2Cpp && major >= 2020) || (major === 2019 && minor >= 3)) {
+        if (major >= 2020 || (major === 2019 && minor >= 3)) {
           return linuxIl2cpp;
         }
 
@@ -150,17 +149,17 @@ class ImageTag {
     }
   }
 
-  get tag() {
+  get tag(): string {
     const versionAndPlatform = `${this.editorVersion}-${this.builderPlatform}`.replace(/-+$/, '');
 
     return `${this.imagePlatformPrefix}-${versionAndPlatform}-${this.imageRollingVersion}`;
   }
 
-  get image() {
+  get image(): string {
     return `${this.repository}/${this.name}`.replace(/^\/+/, '');
   }
 
-  toString() {
+  toString(): string {
     const { image, tag, customImage } = this;
 
     if (customImage) return customImage;

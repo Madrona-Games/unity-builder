@@ -2,11 +2,12 @@ import { execWithErrorCheck } from './exec-with-error-check';
 import ImageEnvironmentFactory from './image-environment-factory';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
+import BuildParameters from './build-parameters';
 
 class Docker {
   static async run(
-    image,
-    parameters,
+    image: string,
+    parameters: BuildParameters,
     silent = false,
     overrideCommands = '',
     additionalVariables: any[] = [],
@@ -30,8 +31,8 @@ class Docker {
   }
 
   static getLinuxCommand(
-    image,
-    parameters,
+    image: string,
+    parameters: BuildParameters,
     overrideCommands = '',
     additionalVariables: any[] = [],
     entrypointBash: boolean = false,

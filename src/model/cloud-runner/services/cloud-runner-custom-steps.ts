@@ -9,6 +9,7 @@ import Input from '../../input';
 import CloudRunnerOptions from '../cloud-runner-options';
 import CloudRunnerLogger from './cloud-runner-logger';
 import { CustomStep } from './custom-step';
+import { CloudRunnerStepState } from '../cloud-runner-step-state';
 
 export class CloudRunnerCustomSteps {
   static GetCustomStepsFromFiles(hookLifecycle: string): CustomStep[] {
@@ -182,7 +183,7 @@ export class CloudRunnerCustomSteps {
     return results;
   }
 
-  private static ConvertYamlSecrets(object) {
+  private static ConvertYamlSecrets(object: CustomStep) {
     if (object.secrets === undefined) {
       object.secrets = [];
 
@@ -190,9 +191,9 @@ export class CloudRunnerCustomSteps {
     }
     object.secrets = object.secrets.map((x) => {
       return {
-        ParameterKey: x.name,
-        EnvironmentVariable: Input.ToEnvVarFormat(x.name),
-        ParameterValue: x.value,
+        ParameterKey: x.ParameterKey,
+        EnvironmentVariable: Input.ToEnvVarFormat(x.ParameterKey),
+        ParameterValue: x.ParameterValue,
       };
     });
   }
@@ -228,7 +229,7 @@ export class CloudRunnerCustomSteps {
     return object;
   }
 
-  static async RunPostBuildSteps(cloudRunnerStepState) {
+  static async RunPostBuildSteps(cloudRunnerStepState: CloudRunnerStepState) {
     let output = ``;
     const steps: CustomStep[] = [
       ...CloudRunnerCustomSteps.ParseSteps(CloudRunner.buildParameters.postBuildSteps),
@@ -247,7 +248,7 @@ export class CloudRunnerCustomSteps {
 
     return output;
   }
-  static async RunPreBuildSteps(cloudRunnerStepState) {
+  static async RunPreBuildSteps(cloudRunnerStepState: CloudRunnerStepState) {
     let output = ``;
     const steps: CustomStep[] = [
       ...CloudRunnerCustomSteps.ParseSteps(CloudRunner.buildParameters.preBuildSteps),

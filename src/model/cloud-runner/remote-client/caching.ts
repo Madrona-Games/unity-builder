@@ -10,7 +10,7 @@ import { RemoteClientLogger } from './remote-client-logger';
 import { Cli } from '../../cli/cli';
 import { CliFunction } from '../../cli/cli-functions-repository';
 // eslint-disable-next-line github/no-then
-const fileExists = async (fpath) => !!(await fs.promises.stat(fpath).catch(() => false));
+const fileExists = async (fpath: fs.PathLike) => !!(await fs.promises.stat(fpath).catch(() => false));
 
 export class Caching {
   @CliFunction(`cache-push`, `push to cache`)
