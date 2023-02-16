@@ -3,7 +3,7 @@ import * as semver from 'semver';
 
 export default class AndroidVersioning {
   static determineVersionCode(version: string, inputVersionCode: string): string {
-    if (!inputVersionCode) {
+    if (inputVersionCode === '') {
       return AndroidVersioning.versionToVersionCode(version);
     }
 

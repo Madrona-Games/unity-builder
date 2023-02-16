@@ -1,3 +1,5 @@
+import * as Index from '.';
+
 interface ExportedModules {
   [key: string]: any;
   Action: any;
@@ -11,7 +13,6 @@ interface ExportedModules {
   Unity: any;
 }
 
-import * as Index from '.';
 const exportedModules: ExportedModules = Index;
 
 describe('Index', () => {

@@ -61,12 +61,12 @@ class CloudRunnerOptions {
     return CloudRunnerOptions.getInput('githubChecks') === 'true' || false;
   }
 
-  static get githubOwner(): string | boolean {
-    return CloudRunnerOptions.getInput('githubOwner') || CloudRunnerOptions.githubRepo?.split(`/`)[0] || false;
+  static get githubOwner(): string {
+    return CloudRunnerOptions.getInput('githubOwner') || CloudRunnerOptions.githubRepo?.split(`/`)[0] || '';
   }
 
-  static get githubRepoName(): string | boolean {
-    return CloudRunnerOptions.getInput('githubRepoName') || CloudRunnerOptions.githubRepo?.split(`/`)[1] || false;
+  static get githubRepoName(): string {
+    return CloudRunnerOptions.getInput('githubRepoName') || CloudRunnerOptions.githubRepo?.split(`/`)[1] || '';
   }
 
   // ### ### ###

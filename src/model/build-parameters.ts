@@ -13,12 +13,14 @@ import GitHub from './github';
 import CloudRunnerOptions from './cloud-runner/cloud-runner-options';
 
 class BuildParameters {
+  // eslint-disable-next-line no-undef
   [key: string]: any;
+
   public editorVersion!: string;
   public customImage!: string;
   public unitySerial!: string;
   public unityLicensingServer!: string;
-  public runnerTempPath: string | undefined;
+  public runnerTempPath!: string;
   public targetPlatform!: string;
   public projectPath!: string;
   public buildName!: string;
@@ -120,7 +122,7 @@ class BuildParameters {
       customImage: Input.customImage,
       unitySerial,
       unityLicensingServer: Input.unityLicensingServer,
-      runnerTempPath: process.env.RUNNER_TEMP,
+      runnerTempPath: Input.runnerTempPath,
       targetPlatform: Input.targetPlatform,
       projectPath: Input.projectPath,
       buildName: Input.buildName,

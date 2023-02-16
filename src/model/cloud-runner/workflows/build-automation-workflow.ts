@@ -85,7 +85,7 @@ export class BuildAutomationWorkflow implements WorkflowInterface {
       ${BuildAutomationWorkflow.TreeCommand}`;
   }
 
-  private static setupCommands(builderPath) {
+  private static setupCommands(builderPath: string) {
     const commands = `mkdir -p ${CloudRunnerFolders.ToLinuxFolder(
       CloudRunnerFolders.builderPathAbsolute,
     )} && git clone -q -b ${CloudRunner.buildParameters.cloudRunnerBranch} ${
@@ -112,7 +112,7 @@ export class BuildAutomationWorkflow implements WorkflowInterface {
     node ${builderPath} -m remote-cli-pre-build`;
   }
 
-  private static BuildCommands(builderPath) {
+  private static BuildCommands(builderPath: string) {
     const distFolder = path.join(CloudRunnerFolders.builderPathAbsolute, 'dist');
     const ubuntuPlatformsFolder = path.join(CloudRunnerFolders.builderPathAbsolute, 'dist', 'platforms', 'ubuntu');
 

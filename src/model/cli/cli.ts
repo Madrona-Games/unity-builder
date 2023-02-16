@@ -14,6 +14,7 @@ import { TaskParameterSerializer } from '../cloud-runner/services/task-parameter
 import { CloudRunnerFolders } from '../cloud-runner/services/cloud-runner-folders';
 import { CloudRunnerSystem } from '../cloud-runner/services/cloud-runner-system';
 import { OptionValues } from 'commander';
+import { InputKey } from '../input';
 
 export class Cli {
   public static options: OptionValues | undefined;
@@ -89,14 +90,15 @@ export class Cli {
     const properties = CloudRunnerOptionsReader.GetProperties();
     for (const element of properties) {
       if (
-        Input[element] !== undefined &&
-        Input[element] !== '' &&
-        typeof Input[element] !== `function` &&
+        element in Input &&
+        Input[element as InputKey] !== undefined &&
+        Input[element as InputKey] !== '' &&
+        typeof Input[element as InputKey] !== `function` &&
         element !== 'length' &&
         element !== 'cliOptions' &&
         element !== 'prototype'
       ) {
-        core.info(`${element} ${Input[element]}`);
+        core.info(`${element} ${Input[element as InputKey]}`);
       }
     }
     core.info(`\n`);

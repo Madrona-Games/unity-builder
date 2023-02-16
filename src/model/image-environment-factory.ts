@@ -1,13 +1,12 @@
-import BuildParameters from './build-parameters';
 import { ReadLicense } from './input-readers/test-license-reader';
 
-class Parameter {
-  public name;
-  public value;
+export class Parameter {
+  public name!: string;
+  public value!: string;
 }
 
 class ImageEnvironmentFactory {
-  public static getEnvVarString(parameters: BuildParameters, additionalVariables: any[] = []) {
+  public static getEnvVarString(parameters: { [key: string]: any }, additionalVariables: any[] = []) {
     const environmentVariables = ImageEnvironmentFactory.getEnvironmentVariables(parameters, additionalVariables);
     let string = '';
     for (const p of environmentVariables) {
@@ -25,7 +24,8 @@ class ImageEnvironmentFactory {
 
     return string;
   }
-  public static getEnvironmentVariables(parameters: BuildParameters, additionalVariables: any[] = []) {
+
+  public static getEnvironmentVariables(parameters: { [key: string]: any }, additionalVariables: Parameter[] = []) {
     let environmentVariables: Parameter[] = [
       { name: 'UNITY_LICENSE', value: process.env.UNITY_LICENSE || ReadLicense() },
       { name: 'UNITY_LICENSE_FILE', value: process.env.UNITY_LICENSE_FILE },

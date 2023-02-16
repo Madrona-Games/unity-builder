@@ -56,7 +56,8 @@ export class TaskParameterSerializer {
     return result;
   }
 
-  static uniqBy(a: CloudRunnerEnvironmentVariable[], key: (params: CloudRunnerEnvironmentVariable) => string) {
+  // eslint-disable-next-line no-unused-vars
+  static uniqBy(a: CloudRunnerEnvironmentVariable[], key: (parameters: CloudRunnerEnvironmentVariable) => string) {
     const seen: { [key: string]: boolean } = {};
 
     return a.filter(function (item) {

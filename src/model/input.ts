@@ -7,6 +7,8 @@ import GitHub from './github';
 
 import * as core from '@actions/core';
 
+export type InputKey = keyof typeof Input;
+
 /**
  * Input variables specified in workflows using "with" prop.
  *
@@ -15,7 +17,6 @@ import * as core from '@actions/core';
  * Todo: rename to UserInput and remove anything that is not direct input from the user / ci workflow
  */
 class Input {
-  static [key: string]: any;
   public static getInput(query: string): string | undefined {
     if (GitHub.githubInputEnabled) {
       const coreInput = core.getInput(query);
@@ -67,6 +68,7 @@ class Input {
     } else if (Input.getInput(`GitSHA`)) {
       return Input.getInput(`GitSHA`)!;
     }
+
     return '';
   }
 
@@ -102,6 +104,10 @@ class Input {
     }
 
     return rawProjectPath.replace(/\/$/, '');
+  }
+
+  static get runnerTempPath(): string {
+    return Input.getInput('RUNNER_TEMP') || '';
   }
 
   static get buildName(): string {

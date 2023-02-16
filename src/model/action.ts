@@ -14,6 +14,10 @@ class Action {
   }
 
   static get canonicalName(): string {
+    if (Action.isRunningFromSource) {
+      return path.basename(path.dirname(path.join(path.dirname(__filename), '/..')));
+    }
+
     return 'unity-builder';
   }
 

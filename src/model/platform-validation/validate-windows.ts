@@ -11,16 +11,10 @@ class ValidateWindows {
     }
   }
 
-  private static validateWindowsPlatformRequirements(platform) {
+  private static validateWindowsPlatformRequirements(platform: string) {
     switch (platform) {
       case 'StandaloneWindows':
-        this.checkForVisualStudio();
-        this.checkForWin10SDK();
-        break;
       case 'StandaloneWindows64':
-        this.checkForVisualStudio();
-        this.checkForWin10SDK();
-        break;
       case 'WSAPlayer':
         this.checkForVisualStudio();
         this.checkForWin10SDK();

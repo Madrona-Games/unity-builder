@@ -41,7 +41,7 @@ export class LfsHashing {
 
   @CliFunction(`hash`, `hash all folder contents`)
   static async hash() {
-    const folder = Cli.options['cachePushFrom'];
+    const folder = Cli.options!['cachePushFrom'];
     LfsHashing.hashAllFiles(folder);
   }
 }

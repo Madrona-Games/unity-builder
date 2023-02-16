@@ -1,7 +1,5 @@
 import Platform from './platform';
 
-import BuildParameters from './build-parameters';
-
 class ImageTag {
   public repository: string;
   public name: string;
@@ -13,7 +11,7 @@ class ImageTag {
   public imageRollingVersion: number;
   public imagePlatformPrefix: string;
 
-  constructor(imageProperties: BuildParameters) {
+  constructor(imageProperties: { [key: string]: string }) {
     const { editorVersion, targetPlatform, customImage, cloudRunnerBuilderPlatform } = imageProperties;
 
     if (!ImageTag.versionPattern.test(editorVersion)) {

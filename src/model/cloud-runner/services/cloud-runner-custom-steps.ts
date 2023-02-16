@@ -189,11 +189,11 @@ export class CloudRunnerCustomSteps {
 
       return;
     }
-    object.secrets = object.secrets.map((x) => {
+    object.secrets = object.secrets.map((x: { [key: string]: any }) => {
       return {
-        ParameterKey: x.ParameterKey,
-        EnvironmentVariable: Input.ToEnvVarFormat(x.ParameterKey),
-        ParameterValue: x.ParameterValue,
+        ParameterKey: x.name,
+        EnvironmentVariable: Input.ToEnvVarFormat(x.name),
+        ParameterValue: x.value,
       };
     });
   }

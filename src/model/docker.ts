@@ -1,17 +1,18 @@
 import { execWithErrorCheck } from './exec-with-error-check';
-import ImageEnvironmentFactory from './image-environment-factory';
+import ImageEnvironmentFactory, { Parameter } from './image-environment-factory';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
-import BuildParameters from './build-parameters';
+import { ExecOptions } from '@actions/exec';
 
 class Docker {
   static async run(
     image: string,
-    parameters: BuildParameters,
-    silent = false,
-    overrideCommands = '',
-    additionalVariables: any[] = [],
-    options: any = false,
+    parameters: { [key: string]: any },
+    silent: boolean = false,
+    overrideCommands: string = '',
+    additionalVariables: Parameter[] = [],
+    // eslint-disable-next-line unicorn/no-useless-undefined
+    options: ExecOptions | undefined = undefined,
     entrypointBash: boolean = false,
   ) {
     let runCommand = '';
@@ -22,7 +23,7 @@ class Docker {
       case 'win32':
         runCommand = this.getWindowsCommand(image, parameters);
     }
-    if (options !== false) {
+    if (options) {
       options.silent = silent;
       await execWithErrorCheck(runCommand, undefined, options);
     } else {
@@ -32,9 +33,9 @@ class Docker {
 
   static getLinuxCommand(
     image: string,
-    parameters: BuildParameters,
-    overrideCommands = '',
-    additionalVariables: any[] = [],
+    parameters: { [key: string]: any },
+    overrideCommands: string = '',
+    additionalVariables: Parameter[] = [],
     entrypointBash: boolean = false,
   ): string {
     const { workspace, actionFolder, runnerTempPath, sshAgent, gitPrivateToken } = parameters;
@@ -68,7 +69,7 @@ class Docker {
             "${overrideCommands !== '' ? overrideCommands : `/entrypoint.sh`}"`;
   }
 
-  static getWindowsCommand(image: any, parameters: any): string {
+  static getWindowsCommand(image: string, parameters: { [key: string]: any }): string {
     const { workspace, actionFolder, unitySerial, gitPrivateToken } = parameters;
 
     return `docker run \

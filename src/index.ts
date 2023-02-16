@@ -3,6 +3,7 @@ import { Action, BuildParameters, Cache, CloudRunner, Docker, ImageTag, Output }
 import { Cli } from './model/cli/cli';
 import MacBuilder from './model/mac-builder';
 import PlatformSetup from './model/platform-setup';
+
 async function runMain() {
   try {
     if (Cli.InitCliMode()) {
@@ -26,7 +27,7 @@ async function runMain() {
       if (process.platform === 'darwin') {
         MacBuilder.run(actionFolder);
       } else {
-        await Docker.run(baseImage, { workspace, actionFolder, ...buildParameters });
+        await Docker.run(baseImage.toString(), { workspace, actionFolder, ...buildParameters });
       }
     }
 

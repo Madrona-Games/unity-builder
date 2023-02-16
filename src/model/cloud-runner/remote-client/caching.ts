@@ -19,9 +19,9 @@ export class Caching {
       const buildParameter = JSON.parse(process.env.BUILD_PARAMETERS || '{}');
       CloudRunner.buildParameters = buildParameter;
       await Caching.PushToCache(
-        Cli.options['cachePushTo'],
-        Cli.options['cachePushFrom'],
-        Cli.options['artifactName'] || '',
+        Cli.options!['cachePushTo'],
+        Cli.options!['cachePushFrom'],
+        Cli.options!['artifactName'] || '',
       );
     } catch (error: any) {
       CloudRunnerLogger.log(`${error}`);
@@ -34,9 +34,9 @@ export class Caching {
       const buildParameter = JSON.parse(process.env.BUILD_PARAMETERS || '{}');
       CloudRunner.buildParameters = buildParameter;
       await Caching.PullFromCache(
-        Cli.options['cachePushFrom'],
-        Cli.options['cachePushTo'],
-        Cli.options['artifactName'] || '',
+        Cli.options!['cachePushFrom'],
+        Cli.options!['cachePushTo'],
+        Cli.options!['artifactName'] || '',
       );
     } catch (error: any) {
       CloudRunnerLogger.log(`${error}`);

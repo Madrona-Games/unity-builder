@@ -47,7 +47,9 @@ describe('BuildParameters', () => {
     it('returns the android version code from version by default', async () => {
       const mockValue = '';
       jest.spyOn(Input, 'androidVersionCode', 'get').mockReturnValue(mockValue);
-      await expect(BuildParameters.create()).resolves.toEqual(expect.objectContaining({ androidVersionCode: 1003037 }));
+      await expect(BuildParameters.create()).resolves.toEqual(
+        expect.objectContaining({ androidVersionCode: '1003037' }),
+      );
     });
 
     it('determines the android sdk manager parameters only once', async () => {
