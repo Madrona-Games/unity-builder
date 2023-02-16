@@ -44,8 +44,8 @@ class BuildParameters {
   public gitPrivateToken!: string;
   public awsStackName!: string;
   public kubeConfig!: string;
-  public cloudRunnerMemory!: string;
-  public cloudRunnerCpu!: string;
+  public cloudRunnerMemory!: string | undefined;
+  public cloudRunnerCpu!: string | undefined;
   public kubeVolumeSize!: string;
   public kubeVolume!: string;
   public kubeStorageClass!: string;
@@ -65,7 +65,7 @@ class BuildParameters {
   public logId!: string;
   public buildGuid!: string;
   public cloudRunnerBranch!: string;
-  public cloudRunnerDebug!: boolean;
+  public cloudRunnerDebug!: boolean | undefined;
   public cloudRunnerBuilderPlatform!: string | undefined;
   public isCliMode!: boolean;
   public retainWorkspace!: boolean;

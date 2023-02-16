@@ -62,15 +62,15 @@ export class Cli {
 
   static async RunCli(): Promise<void> {
     GitHub.githubInputEnabled = false;
-    if (Cli.options['populateOverride'] === `true`) {
+    if (Cli.options!['populateOverride'] === `true`) {
       await CloudRunnerQueryOverride.PopulateQueryOverrideInput();
     }
-    if (Cli.options['logInput']) {
+    if (Cli.options!['logInput']) {
       Cli.logInput();
     }
-    const results = CliFunctionsRepository.GetCliFunctions(Cli.options.mode);
+    const results = CliFunctionsRepository.GetCliFunctions(Cli.options?.mode);
     CloudRunnerLogger.log(`Entrypoint: ${results.key}`);
-    Cli.options.versioning = 'None';
+    Cli.options!.versioning = 'None';
 
     const buildParameter = TaskParameterSerializer.readBuildParameterFromEnvironment();
     CloudRunnerLogger.log(`Build Params:

@@ -15,7 +15,7 @@ import * as core from '@actions/core';
  * Todo: rename to UserInput and remove anything that is not direct input from the user / ci workflow
  */
 class Input {
-  [key: string]: any;
+  static [key: string]: any;
   public static getInput(query: string): string | undefined {
     if (GitHub.githubInputEnabled) {
       const coreInput = core.getInput(query);

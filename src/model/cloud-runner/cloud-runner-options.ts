@@ -223,8 +223,12 @@ class CloudRunnerOptions {
   // Utility Parameters
   // ### ### ###
 
-  static get cloudRunnerDebug(): string | boolean {
-    return CloudRunnerOptions.getInput(`cloudRunnerTests`) || CloudRunnerOptions.getInput(`cloudRunnerDebug`) || false;
+  static get cloudRunnerDebug(): boolean {
+    return (
+      CloudRunnerOptions.getInput(`cloudRunnerTests`) === 'true' ||
+      CloudRunnerOptions.getInput(`cloudRunnerDebug`) === 'true' ||
+      false
+    );
   }
   static get cloudRunnerDebugTree(): string | boolean {
     return CloudRunnerOptions.getInput(`cloudRunnerDebugTree`) || false;
