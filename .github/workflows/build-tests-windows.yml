@@ -68,7 +68,7 @@ jobs:
         uses: ./
         id: build-1
         continue-on-error: true
-        timeout-minutes: 60
+        timeout-minutes: 45
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
