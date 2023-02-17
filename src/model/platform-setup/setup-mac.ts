@@ -3,7 +3,7 @@ import { getUnityChangeset } from 'unity-changeset';
 import { exec, getExecOutput } from '@actions/exec';
 import { restoreCache, saveCache } from '@actions/cache';
 
-import fs from 'fs';
+import fs from 'node:fs';
 
 class SetupMac {
   static unityHubBasePath = `/Applications/"Unity Hub.app"`;

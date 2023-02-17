@@ -1,6 +1,6 @@
-import { assert } from 'console';
-import fs from 'fs';
-import path from 'path';
+import { assert } from 'node:console';
+import fs from 'node:fs';
+import path from 'node:path';
 import CloudRunner from '../cloud-runner';
 import CloudRunnerLogger from '../services/cloud-runner-logger';
 import { CloudRunnerFolders } from '../services/cloud-runner-folders';

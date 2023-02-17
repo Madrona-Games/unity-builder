@@ -10,7 +10,7 @@ import CloudRunner from '../../cloud-runner';
 import { ProviderResource } from '../provider-resource';
 import { ProviderWorkflow } from '../provider-workflow';
 import { CloudRunnerSystem } from '../../services/cloud-runner-system';
-import * as fs from 'fs';
+import fs from 'node:fs';
 import { StringKeyValuePair } from '../../../shared-types';
 
 class LocalDockerCloudRunner implements ProviderInterface {

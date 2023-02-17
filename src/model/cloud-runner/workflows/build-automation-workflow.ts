@@ -4,7 +4,7 @@ import { CloudRunnerStepState } from '../cloud-runner-step-state';
 import { WorkflowInterface } from './workflow-interface';
 import * as core from '@actions/core';
 import { CloudRunnerCustomHooks } from '../services/cloud-runner-custom-hooks';
-import path from 'path';
+import path from 'node:path';
 import CloudRunner from '../cloud-runner';
 import CloudRunnerOptions from '../cloud-runner-options';
 import { CloudRunnerCustomSteps } from '../services/cloud-runner-custom-steps';

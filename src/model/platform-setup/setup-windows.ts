@@ -1,5 +1,5 @@
 import { exec } from '@actions/exec';
-import fs from 'fs';
+import fs from 'node:fs';
 import { BuildParameters } from '..';
 
 class SetupWindows {

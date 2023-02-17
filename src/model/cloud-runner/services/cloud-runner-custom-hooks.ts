@@ -2,9 +2,9 @@ import { BuildParameters, Input } from '../..';
 import YAML from 'yaml';
 import CloudRunnerSecret from './cloud-runner-secret';
 import { RemoteClientLogger } from '../remote-client/remote-client-logger';
-import path from 'path';
+import path from 'node:path';
 import CloudRunnerOptions from '../cloud-runner-options';
-import * as fs from 'fs';
+import fs from 'node:fs';
 
 // import CloudRunnerLogger from './cloud-runner-logger';
 

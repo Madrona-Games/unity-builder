@@ -3,7 +3,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Test Spec File",
+      "name": "Debug Jest Test",
       "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
       "args": [
         "--collectCoverage=false",

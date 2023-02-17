@@ -2,7 +2,7 @@ import * as AWS from 'aws-sdk';
 import CloudRunnerEnvironmentVariable from '../../services/cloud-runner-environment-variable';
 import * as core from '@actions/core';
 import CloudRunnerAWSTaskDef from './cloud-runner-aws-task-def';
-import * as zlib from 'zlib';
+import * as zlib from 'node:zlib';
 import CloudRunnerLogger from '../../services/cloud-runner-logger';
 import { Input } from '../../..';
 import CloudRunner from '../../cloud-runner';

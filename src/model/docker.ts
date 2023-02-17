@@ -1,7 +1,7 @@
 import { execWithErrorCheck } from './exec-with-error-check';
 import ImageEnvironmentFactory from './image-environment-factory';
-import { existsSync, mkdirSync } from 'fs';
-import path from 'path';
+import { existsSync, mkdirSync } from 'node:fs';
+import path from 'node:path';
 import { ExecOptions } from '@actions/exec';
 import { DockerParameters, StringKeyValuePair } from './shared-types';
 
