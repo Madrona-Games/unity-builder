@@ -158,7 +158,7 @@ export class TaskParameterSerializer {
       : process.env[key];
   }
 
-  private static tryAddInput(array: any[], key: string): CloudRunnerSecret[] {
+  private static tryAddInput(array: CloudRunnerSecret[], key: string): CloudRunnerSecret[] {
     const value = TaskParameterSerializer.getValue(key);
     if (value !== undefined && value !== '' && value !== 'null') {
       array.push({

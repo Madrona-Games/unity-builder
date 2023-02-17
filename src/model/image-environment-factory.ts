@@ -1,12 +1,8 @@
 import { ReadLicense } from './input-readers/test-license-reader';
-
-export class Parameter {
-  public name!: string;
-  public value!: string;
-}
+import { DockerParameters, StringKeyValuePair } from './shared-types';
 
 class ImageEnvironmentFactory {
-  public static getEnvVarString(parameters: { [key: string]: any }, additionalVariables: any[] = []) {
+  public static getEnvVarString(parameters: DockerParameters, additionalVariables: StringKeyValuePair[] = []) {
     const environmentVariables = ImageEnvironmentFactory.getEnvironmentVariables(parameters, additionalVariables);
     let string = '';
     for (const p of environmentVariables) {
@@ -25,8 +21,8 @@ class ImageEnvironmentFactory {
     return string;
   }
 
-  public static getEnvironmentVariables(parameters: { [key: string]: any }, additionalVariables: Parameter[] = []) {
-    let environmentVariables: Parameter[] = [
+  public static getEnvironmentVariables(parameters: DockerParameters, additionalVariables: StringKeyValuePair[] = []) {
+    let environmentVariables: StringKeyValuePair[] = [
       { name: 'UNITY_LICENSE', value: process.env.UNITY_LICENSE || ReadLicense() },
       { name: 'UNITY_LICENSE_FILE', value: process.env.UNITY_LICENSE_FILE },
       { name: 'UNITY_EMAIL', value: process.env.UNITY_EMAIL },

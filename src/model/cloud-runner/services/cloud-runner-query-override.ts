@@ -11,11 +11,11 @@ const formatFunction = (value: string, arguments_: any[]) => {
 };
 
 class CloudRunnerQueryOverride {
-  static queryOverrides: any;
+  static queryOverrides: { [key: string]: string } | undefined;
 
   // TODO accept premade secret sources or custom secret source definition yamls
 
-  public static query(key: any, alternativeKey: any) {
+  public static query(key: string, alternativeKey: string) {
     if (CloudRunnerQueryOverride.queryOverrides && CloudRunnerQueryOverride.queryOverrides[key] !== undefined) {
       return CloudRunnerQueryOverride.queryOverrides[key];
     }
@@ -56,7 +56,7 @@ class CloudRunnerQueryOverride {
 
   public static async PopulateQueryOverrideInput() {
     const queries = CloudRunnerOptions.readInputFromOverrideList().split(',');
-    CloudRunnerQueryOverride.queryOverrides = new Array();
+    CloudRunnerQueryOverride.queryOverrides = {};
     for (const element of queries) {
       if (CloudRunnerQueryOverride.shouldUseOverride(element)) {
         CloudRunnerQueryOverride.queryOverrides[element] = await CloudRunnerQueryOverride.queryOverride(element);

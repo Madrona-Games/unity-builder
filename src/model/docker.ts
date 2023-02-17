@@ -1,16 +1,17 @@
 import { execWithErrorCheck } from './exec-with-error-check';
-import ImageEnvironmentFactory, { Parameter } from './image-environment-factory';
+import ImageEnvironmentFactory from './image-environment-factory';
 import { existsSync, mkdirSync } from 'fs';
 import path from 'path';
 import { ExecOptions } from '@actions/exec';
+import { DockerParameters, StringKeyValuePair } from './shared-types';
 
 class Docker {
   static async run(
     image: string,
-    parameters: { [key: string]: any },
+    parameters: DockerParameters,
     silent: boolean = false,
     overrideCommands: string = '',
-    additionalVariables: Parameter[] = [],
+    additionalVariables: StringKeyValuePair[] = [],
     // eslint-disable-next-line unicorn/no-useless-undefined
     options: ExecOptions | undefined = undefined,
     entrypointBash: boolean = false,
@@ -33,9 +34,9 @@ class Docker {
 
   static getLinuxCommand(
     image: string,
-    parameters: { [key: string]: any },
+    parameters: DockerParameters,
     overrideCommands: string = '',
-    additionalVariables: Parameter[] = [],
+    additionalVariables: StringKeyValuePair[] = [],
     entrypointBash: boolean = false,
   ): string {
     const { workspace, actionFolder, runnerTempPath, sshAgent, gitPrivateToken } = parameters;
@@ -69,7 +70,7 @@ class Docker {
             "${overrideCommands !== '' ? overrideCommands : `/entrypoint.sh`}"`;
   }
 
-  static getWindowsCommand(image: string, parameters: { [key: string]: any }): string {
+  static getWindowsCommand(image: string, parameters: DockerParameters): string {
     const { workspace, actionFolder, unitySerial, gitPrivateToken } = parameters;
 
     return `docker run \

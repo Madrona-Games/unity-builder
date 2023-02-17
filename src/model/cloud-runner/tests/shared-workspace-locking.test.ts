@@ -9,7 +9,7 @@ import BuildParameters from '../../build-parameters';
 import CloudRunner from '../cloud-runner';
 import { OptionValues } from 'commander';
 
-async function CreateParameters(overrides: OptionValues) {
+async function CreateParameters(overrides: OptionValues | undefined) {
   if (overrides) {
     Cli.options = overrides;
   }
@@ -55,7 +55,7 @@ describe('Cloud Runner Locking', () => {
     }, 150000);
     it.skip('All Locking Actions', async () => {
       Cli.options!.retainWorkspaces = true;
-      const overrides: any = {
+      const overrides: OptionValues = {
         versioning: 'None',
         projectPath: 'test-project',
         unityVersion: UnityVersioning.determineUnityVersion('test-project', UnityVersioning.read('test-project')),

@@ -3,11 +3,11 @@ import Platform from './platform';
 class ImageTag {
   public repository: string;
   public name: string;
-  public cloudRunnerBuilderPlatform!: string | undefined;
+  public cloudRunnerBuilderPlatform!: string;
   public editorVersion: string;
-  public targetPlatform: any;
+  public targetPlatform: string;
   public builderPlatform: string;
-  public customImage: any;
+  public customImage: string;
   public imageRollingVersion: number;
   public imagePlatformPrefix: string;
 

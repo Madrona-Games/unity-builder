@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import { exec, ExecListeners } from '@actions/exec';
 
 class System {
-  static async run(command: string, arguments_: any = [], options = {}, shouldLog = true) {
+  static async run(command: string, arguments_: string[] = [], options = {}, shouldLog = true) {
     let result = '';
     let error = '';
     let debug = '';

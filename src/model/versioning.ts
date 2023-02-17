@@ -215,7 +215,7 @@ export default class Versioning {
    * identifies the current commit.
    */
   static async getVersionDescription() {
-    return this.git(['describe', '--long', '--tags', '--always', this.sha]);
+    return this.git(['describe', '--long', '--tags', '--always', this.sha!]);
   }
 
   /**
@@ -263,7 +263,7 @@ export default class Versioning {
    * Note: HEAD should not be used, as it may be detached, resulting in an additional count.
    */
   static async getTotalNumberOfCommits() {
-    const numberOfCommitsAsString = await this.git(['rev-list', '--count', this.sha]);
+    const numberOfCommitsAsString = await this.git(['rev-list', '--count', this.sha!]);
 
     return Number.parseInt(numberOfCommitsAsString, 10);
   }
@@ -271,7 +271,7 @@ export default class Versioning {
   /**
    * Run git in the specified project path
    */
-  static async git(arguments_: any, options = {}) {
+  static async git(arguments_: string[], options = {}) {
     return System.run('git', arguments_, { cwd: Input.projectPath, ...options }, false);
   }
 }

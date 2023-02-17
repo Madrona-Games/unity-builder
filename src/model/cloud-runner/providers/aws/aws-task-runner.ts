@@ -192,22 +192,19 @@ class AWSTaskRunner {
   }
 
   private static logRecords(
-    records: any,
+    records: AWS.Kinesis.GetRecordsOutput,
     iterator: string,
     shouldReadLogs: boolean,
     output: string,
     shouldCleanup: boolean,
   ) {
     if (records.Records.length > 0 && iterator) {
-      for (let index = 0; index < records.Records.length; index++) {
-        const json = JSON.parse(
-          zlib.gunzipSync(Buffer.from(records.Records[index].Data as string, 'base64')).toString('utf8'),
-        );
+      for (const record of records.Records) {
+        const json = JSON.parse(zlib.gunzipSync(Buffer.from(record.Data as string, 'base64')).toString('utf8'));
         if (json.messageType === 'DATA_MESSAGE') {
-          for (let logEventsIndex = 0; logEventsIndex < json.logEvents.length; logEventsIndex++) {
-            const message = json.logEvents[logEventsIndex].message;
+          for (const logEvent of json.logEvents) {
             ({ shouldReadLogs, shouldCleanup, output } = FollowLogStreamService.handleIteration(
-              message,
+              logEvent.message,
               shouldReadLogs,
               shouldCleanup,
               output,

@@ -1,7 +1,7 @@
 import { Cli } from '../cli/cli';
 import CloudRunnerQueryOverride from './services/cloud-runner-query-override';
 import GitHub from '../github';
-const core = require('@actions/core');
+import * as core from '@actions/core';
 
 class CloudRunnerOptions {
   // ### ### ###

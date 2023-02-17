@@ -12,7 +12,7 @@ import { CloudRunnerFolders } from '../services/cloud-runner-folders';
 import SharedWorkspaceLocking from '../services/shared-workspace-locking';
 import { OptionValues } from 'commander';
 
-async function CreateParameters(overrides: OptionValues) {
+async function CreateParameters(overrides: OptionValues | undefined) {
   if (overrides) {
     Cli.options = overrides;
   }

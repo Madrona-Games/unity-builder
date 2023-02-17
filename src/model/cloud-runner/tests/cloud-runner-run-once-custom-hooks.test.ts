@@ -9,7 +9,7 @@ import setups from './cloud-runner-suite.test';
 import { CloudRunnerCustomSteps } from '../services/cloud-runner-custom-steps';
 import { OptionValues } from 'commander';
 
-async function CreateParameters(overrides: OptionValues) {
+async function CreateParameters(overrides: OptionValues | undefined) {
   if (overrides) {
     Cli.options = overrides;
   }
