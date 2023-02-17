@@ -1,10 +1,18 @@
-name: Mac Builds
+name: Builds - Ubuntu
 
 on:
   workflow_dispatch:
   push:
     branches:
       - main
+      - code-cleanup
+  pull_request:
+    paths-ignore:
+      - '.github/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
   UNITY_LICENSE:
@@ -33,17 +41,24 @@ env:
     Algorithm=\"http://www.w3.org/2000/09/xmldsig#sha1\"/><DigestValue>m0Db8UK+ktnOLJBtHybkfetpcKo=</DigestValue></Reference></SignedInfo><SignatureValue>o/pUbSQAukz7+ZYAWhnA0AJbIlyyCPL7bKVEM2lVqbrXt7cyey+umkCXamuOgsWPVUKBMkXtMH8L\n5etLmD0getWIhTGhzOnDCk+gtIPfL4jMo9tkEuOCROQAXCci23VFscKcrkB+3X6h4wEOtA2APhOY\nB+wvC794o8/82ffjP79aVAi57rp3Wmzx+9pe9yMwoJuljAy2sc2tIMgdQGWVmOGBpQm3JqsidyzI\nJWG2kjnc7pDXK9pwYzXoKiqUqqrut90d+kQqRyv7MSZXR50HFqD/LI69h68b7P8Bjo3bPXOhNXGR\n9YCoemH6EkfCJxp2gIjzjWW+l2Hj2EsFQi8YXw==</SignatureValue></Signature></root>"
 
 jobs:
-  buildForAllPlatformsWindows:
-    name: Build for ${{ matrix.targetPlatform }} on version ${{ matrix.unityVersion }}
-    runs-on: macos-latest
+  buildForAllPlatformsUbuntu:
+    name: ${{ matrix.targetPlatform }} on ${{ matrix.unityVersion }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        cloudRunnerCluster:
+          # - local-docker
+          - local
         projectPath:
           - test-project
         unityVersion:
-          - 2019.4.40f1 # Minimum version for IL2CPP
-          - 2020.1.17f1
+          - 2018.3.14f1
+          - 2018.4.36f1
+          - 2019.1.14f1
+          - 2019.2.21f1
+          - 2019.3.15f1
+          - 2019.4.40f1
           - 2020.2.7f1
           - 2020.3.44f1
           - 2021.1.28f1
@@ -52,8 +67,18 @@ jobs:
           - 2022.1.24f1
           - 2022.2.6f1
         targetPlatform:
-          - StandaloneOSX # Build a MacOS executable
-
+          - StandaloneOSX # Build a macOS standalone (Intel 64-bit) with mono backend.
+          - StandaloneWindows64 # Build a Windows 64-bit standalone with mono backend.
+          - StandaloneLinux64 # Build a Linux 64-bit standalone with mono backend.
+          - iOS # Build an iOS player.
+          - Android # Build an Android .apk.
+          - WebGL # WebGL.
+          #          - StandaloneWindows # Build a Windows standalone.
+          #          - WSAPlayer # Build an Windows Store Apps player.
+          #          - PS4 # Build a PS4 Standalone.
+          #          - XboxOne # Build a Xbox One Standalone.
+          #          - tvOS # Build to Apple's tvOS platform.
+          #          - Switch # Build a Nintendo Switch player
     steps:
       ###########################
       #         Checkout        #
@@ -68,39 +93,27 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ${{ matrix.projectPath }}/Library
-          key: Library-${{ matrix.projectPath }}-macos-${{ matrix.targetPlatform }}
+          key: Library-${{ matrix.projectPath }}-ubuntu-${{ matrix.targetPlatform }}
           restore-keys: |
-            Library-${{ matrix.projectPath }}-macos-
+            Library-${{ matrix.projectPath }}-ubuntu-
             Library-
-
-      ###########################
-      #  Set Scripting Backend  #
-      ###########################
-      - name: Set Scripting Backend To il2cpp
-        run: |
-          mv -f "./test-project/ProjectSettings/ProjectSettingsIl2cpp.asset" "./test-project/ProjectSettings/ProjectSettings.asset"
 
       ###########################
       #          Build          #
       ###########################
       - uses: ./
-        env:
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         with:
           projectPath: ${{ matrix.projectPath }}
           unityVersion: ${{ matrix.unityVersion }}
           targetPlatform: ${{ matrix.targetPlatform }}
           customParameters: -profile SomeProfile -someBoolean -someValue exampleValue
-          # We use dirty build because we are replacing the default project settings file above
-          allowDirtyBuild: true
+          cloudRunnerCluster: ${{ matrix.cloudRunnerCluster }}
 
       ###########################
       #          Upload         #
       ###########################
       - uses: actions/upload-artifact@v3
         with:
-          name: Build MacOS (${{ matrix.unityVersion }})
+          name: Build Ubuntu (${{ matrix.unityVersion }})
           path: build
           retention-days: 14
