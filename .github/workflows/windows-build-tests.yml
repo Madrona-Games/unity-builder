@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - madrona-ci
 
 env:
   UNITY_LICENSE:

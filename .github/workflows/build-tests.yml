@@ -2,7 +2,10 @@ name: Builds
 
 on:
   workflow_dispatch:
-  push: { branches: [main] }
+  push:
+    branches:
+      - main
+      - madrona-ci
   pull_request:
     paths-ignore:
       - '.github/**'
