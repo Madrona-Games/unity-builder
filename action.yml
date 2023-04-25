@@ -47,13 +47,9 @@ inputs:
     required: false
     default: ''
     description: 'The android versionCode'
-  androidAppBundle:
-    required: false
-    default: 'false'
-    description: '[Deprecated] Use androidExportType instead. Whether to build .aab instead of .apk'
   androidExportType:
     required: false
-    default: ''
+    default: 'androidPackage'
     description:
       'The android export type. Should be androidPackage for apk, androidAppBundle for aab, or androidStudioProject for
       an android studio project.'
@@ -118,7 +114,7 @@ inputs:
     description:
       '[CloudRunner] Run a pre build job after the repository setup but before the build job (in yaml format with the
       keys image, secrets (name, value object array), command line string)'
-  customStepFiles:
+  containerHookFiles:
     required: false
     default: ''
     description:
@@ -130,7 +126,7 @@ inputs:
     description:
       '[CloudRunner] Specify the names (by file name) of custom hooks to run before or after cloud runner jobs, must
       match a yaml step file inside your repo in the folder .game-ci/hooks/'
-  customJobHooks:
+  customCommandHooks:
     required: false
     default: ''
     description: '[CloudRunner] Specify custom commands and trigger hooks (injects commands into jobs)'
@@ -140,11 +136,11 @@ inputs:
     description:
       '[CloudRunner] Run a custom job instead of the standard build automation for cloud runner (in yaml format with the
       keys image, secrets (name, value object array), command line string)'
-  awsBaseStackName:
+  awsStackName:
     default: 'game-ci'
     required: false
     description: '[CloudRunner] The Cloud Formation stack name that must be setup before using this option.'
-  cloudRunnerCluster:
+  providerStrategy:
     default: 'local'
     required: false
     description:
@@ -207,6 +203,16 @@ inputs:
     description:
       'The version of Unity Hub to install on MacOS (e.g. 3.4.0). Defaults to latest available on brew if empty string
       or nothing is specified.'
+  unityLicensingServer:
+    default: ''
+    required: false
+    description: 'The Unity licensing server address to use for activating Unity.'
+  dockerWorkspacePath:
+    default: '/github/workspace'
+    required: false
+    description:
+      'The path to mount the workspace inside the docker container. For windows, leave out the drive letter. For example
+      c:/github/workspace should be defined as /github/workspace'
 
 outputs:
   volume:

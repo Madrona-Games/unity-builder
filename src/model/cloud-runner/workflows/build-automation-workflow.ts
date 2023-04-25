@@ -1,67 +1,58 @@
-import CloudRunnerLogger from '../services/cloud-runner-logger';
-import { CloudRunnerFolders } from '../services/cloud-runner-folders';
-import { CloudRunnerStepState } from '../cloud-runner-step-state';
+import CloudRunnerLogger from '../services/core/cloud-runner-logger';
+import { CloudRunnerFolders } from '../options/cloud-runner-folders';
+import { CloudRunnerStepParameters } from '../options/cloud-runner-step-parameters';
 import { WorkflowInterface } from './workflow-interface';
 import * as core from '@actions/core';
-import { CloudRunnerCustomHooks } from '../services/cloud-runner-custom-hooks';
-import path from 'path';
+import { CommandHookService } from '../services/hooks/command-hook-service';
+import path from 'node:path';
 import CloudRunner from '../cloud-runner';
-import CloudRunnerOptions from '../cloud-runner-options';
-import { CloudRunnerCustomSteps } from '../services/cloud-runner-custom-steps';
+import { ContainerHookService } from '../services/hooks/container-hook-service';
 
 export class BuildAutomationWorkflow implements WorkflowInterface {
-  async run(cloudRunnerStepState: CloudRunnerStepState) {
-    try {
-      return await BuildAutomationWorkflow.standardBuildAutomation(cloudRunnerStepState.image, cloudRunnerStepState);
-    } catch (error) {
-      throw error;
-    }
+  async run(cloudRunnerStepState: CloudRunnerStepParameters) {
+    return await BuildAutomationWorkflow.standardBuildAutomation(cloudRunnerStepState.image, cloudRunnerStepState);
   }
 
-  private static async standardBuildAutomation(baseImage: any, cloudRunnerStepState: CloudRunnerStepState) {
+  private static async standardBuildAutomation(baseImage: string, cloudRunnerStepState: CloudRunnerStepParameters) {
     // TODO accept post and pre build steps as yaml files in the repo
-    try {
-      CloudRunnerLogger.log(`Cloud Runner is running standard build automation`);
+    CloudRunnerLogger.log(`Cloud Runner is running standard build automation`);
 
-      let output = '';
+    let output = '';
 
-      output += await CloudRunnerCustomSteps.RunPreBuildSteps(cloudRunnerStepState);
-      CloudRunnerLogger.logWithTime('Configurable pre build step(s) time');
+    output += await ContainerHookService.RunPreBuildSteps(cloudRunnerStepState);
+    CloudRunnerLogger.logWithTime('Configurable pre build step(s) time');
 
-      if (!CloudRunner.buildParameters.isCliMode) core.startGroup('build');
-      CloudRunnerLogger.log(baseImage.toString());
-      CloudRunnerLogger.logLine(` `);
-      CloudRunnerLogger.logLine('Starting build automation job');
+    if (!CloudRunner.buildParameters.isCliMode) core.startGroup('build');
+    CloudRunnerLogger.log(baseImage);
+    CloudRunnerLogger.logLine(` `);
+    CloudRunnerLogger.logLine('Starting build automation job');
 
-      output += await CloudRunner.Provider.runTaskInWorkflow(
-        CloudRunner.buildParameters.buildGuid,
-        baseImage.toString(),
-        BuildAutomationWorkflow.BuildWorkflow,
-        `/${CloudRunnerFolders.buildVolumeFolder}`,
-        `/${CloudRunnerFolders.buildVolumeFolder}/`,
-        cloudRunnerStepState.environment,
-        cloudRunnerStepState.secrets,
-      );
-      if (!CloudRunner.buildParameters.isCliMode) core.endGroup();
-      CloudRunnerLogger.logWithTime('Build time');
+    output += await CloudRunner.Provider.runTaskInWorkflow(
+      CloudRunner.buildParameters.buildGuid,
+      baseImage.toString(),
+      BuildAutomationWorkflow.BuildWorkflow,
+      `/${CloudRunnerFolders.buildVolumeFolder}`,
+      `/${CloudRunnerFolders.buildVolumeFolder}/`,
+      cloudRunnerStepState.environment,
+      cloudRunnerStepState.secrets,
+    );
+    if (!CloudRunner.buildParameters.isCliMode) core.endGroup();
+    CloudRunnerLogger.logWithTime('Build time');
 
-      output += await CloudRunnerCustomSteps.RunPostBuildSteps(cloudRunnerStepState);
-      CloudRunnerLogger.logWithTime('Configurable post build step(s) time');
+    output += await ContainerHookService.RunPostBuildSteps(cloudRunnerStepState);
+    CloudRunnerLogger.logWithTime('Configurable post build step(s) time');
 
-      CloudRunnerLogger.log(`Cloud Runner finished running standard build automation`);
+    CloudRunnerLogger.log(`Cloud Runner finished running standard build automation`);
 
-      return output;
-    } catch (error) {
-      throw error;
-    }
+    return output;
   }
 
   private static get BuildWorkflow() {
-    const setupHooks = CloudRunnerCustomHooks.getHooks(CloudRunner.buildParameters.customJobHooks).filter((x) =>
-      x.step.includes(`setup`),
+    const setupHooks = CommandHookService.getHooks(CloudRunner.buildParameters.commandHooks).filter((x) =>
+      x.step?.includes(`setup`),
     );
-    const buildHooks = CloudRunnerCustomHooks.getHooks(CloudRunner.buildParameters.customJobHooks).filter((x) =>
-      x.step.includes(`build`),
+    const buildHooks = CommandHookService.getHooks(CloudRunner.buildParameters.commandHooks).filter((x) =>
+      x.step?.includes(`build`),
     );
     const builderPath = CloudRunnerFolders.ToLinuxFolder(
       path.join(CloudRunnerFolders.builderPathAbsolute, 'dist', `index.js`),
@@ -73,46 +64,37 @@ export class BuildAutomationWorkflow implements WorkflowInterface {
       n 16.15.1 > /dev/null
       npm --version
       node --version
-      ${BuildAutomationWorkflow.TreeCommand}
       ${setupHooks.filter((x) => x.hook.includes(`before`)).map((x) => x.commands) || ' '}
       export GITHUB_WORKSPACE="${CloudRunnerFolders.ToLinuxFolder(CloudRunnerFolders.repoPathAbsolute)}"
+      df -H /data/
       ${BuildAutomationWorkflow.setupCommands(builderPath)}
       ${setupHooks.filter((x) => x.hook.includes(`after`)).map((x) => x.commands) || ' '}
-      ${BuildAutomationWorkflow.TreeCommand}
       ${buildHooks.filter((x) => x.hook.includes(`before`)).map((x) => x.commands) || ' '}
       ${BuildAutomationWorkflow.BuildCommands(builderPath)}
-      ${buildHooks.filter((x) => x.hook.includes(`after`)).map((x) => x.commands) || ' '}
-      ${BuildAutomationWorkflow.TreeCommand}`;
+      ${buildHooks.filter((x) => x.hook.includes(`after`)).map((x) => x.commands) || ' '}`;
   }
 
-  private static setupCommands(builderPath) {
+  private static setupCommands(builderPath: string) {
     const commands = `mkdir -p ${CloudRunnerFolders.ToLinuxFolder(
       CloudRunnerFolders.builderPathAbsolute,
     )} && git clone -q -b ${CloudRunner.buildParameters.cloudRunnerBranch} ${
       CloudRunnerFolders.unityBuilderRepoUrl
     } "${CloudRunnerFolders.ToLinuxFolder(CloudRunnerFolders.builderPathAbsolute)}" && chmod +x ${builderPath}`;
 
-    const retainedWorkspaceCommands = `if [ -e "${CloudRunnerFolders.ToLinuxFolder(
-      CloudRunnerFolders.uniqueCloudRunnerJobFolderAbsolute,
-    )}" ] && [ -e "${CloudRunnerFolders.ToLinuxFolder(
-      path.join(CloudRunnerFolders.repoPathAbsolute, `.git`),
-    )}" ]; then echo "Retained Workspace Already Exists!" ; fi`;
-
     const cloneBuilderCommands = `if [ -e "${CloudRunnerFolders.ToLinuxFolder(
       CloudRunnerFolders.uniqueCloudRunnerJobFolderAbsolute,
     )}" ] && [ -e "${CloudRunnerFolders.ToLinuxFolder(
       path.join(CloudRunnerFolders.builderPathAbsolute, `.git`),
-    )}" ]; then echo "Builder Already Exists!"; else ${commands}; fi`;
+    )}" ] ; then echo "Builder Already Exists!" && tree ${
+      CloudRunnerFolders.builderPathAbsolute
+    }; else ${commands} ; fi`;
 
     return `export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
-    echo "downloading game-ci..."
-    ${retainedWorkspaceCommands}
-    ${cloneBuilderCommands}
-    echo "bootstrap game ci cloud runner..."
-    node ${builderPath} -m remote-cli-pre-build`;
+${cloneBuilderCommands}
+node ${builderPath} -m remote-cli-pre-build`;
   }
 
-  private static BuildCommands(builderPath) {
+  private static BuildCommands(builderPath: string) {
     const distFolder = path.join(CloudRunnerFolders.builderPathAbsolute, 'dist');
     const ubuntuPlatformsFolder = path.join(CloudRunnerFolders.builderPathAbsolute, 'dist', 'platforms', 'ubuntu');
 
@@ -129,11 +111,5 @@ export class BuildAutomationWorkflow implements WorkflowInterface {
     echo "game ci caching results"
     chmod +x ${builderPath}
     node ${builderPath} -m remote-cli-post-build`;
-  }
-
-  private static get TreeCommand(): string {
-    return CloudRunnerOptions.cloudRunnerDebugTree
-      ? `tree -L 2 ${CloudRunnerFolders.uniqueCloudRunnerJobFolderAbsolute} && tree -L 2 ${CloudRunnerFolders.cacheFolderForCacheKeyFull} && du -h -s /${CloudRunnerFolders.buildVolumeFolder}/ && du -h -s ${CloudRunnerFolders.cacheFolderForAllFull}`
-      : `#`;
   }
 }

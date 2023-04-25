@@ -1,17 +1,21 @@
 import { execWithErrorCheck } from './exec-with-error-check';
 import ImageEnvironmentFactory from './image-environment-factory';
-import { existsSync, mkdirSync } from 'fs';
-import path from 'path';
+import { existsSync, mkdirSync } from 'node:fs';
+import path from 'node:path';
+import { ExecOptions } from '@actions/exec';
+import { DockerParameters, StringKeyValuePair } from './shared-types';
 
 class Docker {
   static async run(
-    image,
-    parameters,
-    silent = false,
-    overrideCommands = '',
-    additionalVariables: any[] = [],
-    options: any = false,
+    image: string,
+    parameters: DockerParameters,
+    silent: boolean = false,
+    overrideCommands: string = '',
+    additionalVariables: StringKeyValuePair[] = [],
+    // eslint-disable-next-line unicorn/no-useless-undefined
+    options: ExecOptions | undefined = undefined,
     entrypointBash: boolean = false,
+    errorWhenMissingUnityBuildResults: boolean = true,
   ) {
     let runCommand = '';
     switch (process.platform) {
@@ -21,22 +25,22 @@ class Docker {
       case 'win32':
         runCommand = this.getWindowsCommand(image, parameters);
     }
-    if (options !== false) {
+    if (options) {
       options.silent = silent;
-      await execWithErrorCheck(runCommand, undefined, options);
+      await execWithErrorCheck(runCommand, undefined, options, errorWhenMissingUnityBuildResults);
     } else {
-      await execWithErrorCheck(runCommand, undefined, { silent });
+      await execWithErrorCheck(runCommand, undefined, { silent }, errorWhenMissingUnityBuildResults);
     }
   }
 
   static getLinuxCommand(
-    image,
-    parameters,
-    overrideCommands = '',
-    additionalVariables: any[] = [],
+    image: string,
+    parameters: DockerParameters,
+    overrideCommands: string = '',
+    additionalVariables: StringKeyValuePair[] = [],
     entrypointBash: boolean = false,
   ): string {
-    const { workspace, actionFolder, runnerTempPath, sshAgent, gitPrivateToken } = parameters;
+    const { workspace, actionFolder, runnerTempPath, sshAgent, gitPrivateToken, dockerWorkspacePath } = parameters;
 
     const githubHome = path.join(runnerTempPath, '_github_home');
     if (!existsSync(githubHome)) mkdirSync(githubHome);
@@ -45,16 +49,16 @@ class Docker {
     const commandPrefix = image === `alpine` ? `/bin/sh` : `/bin/bash`;
 
     return `docker run \
-            --workdir /github/workspace \
+            --workdir ${dockerWorkspacePath} \
             --rm \
             ${ImageEnvironmentFactory.getEnvVarString(parameters, additionalVariables)} \
             --env UNITY_SERIAL \
-            --env GITHUB_WORKSPACE=/github/workspace \
+            --env GITHUB_WORKSPACE=${dockerWorkspacePath} \
             ${gitPrivateToken ? `--env GIT_PRIVATE_TOKEN="${gitPrivateToken}"` : ''} \
             ${sshAgent ? '--env SSH_AUTH_SOCK=/ssh-agent' : ''} \
             --volume "${githubHome}":"/root:z" \
             --volume "${githubWorkflow}":"/github/workflow:z" \
-            --volume "${workspace}":"/github/workspace:z" \
+            --volume "${workspace}":"${dockerWorkspacePath}:z" \
             --volume "${actionFolder}/default-build-script:/UnityBuilderAction:z" \
             --volume "${actionFolder}/platforms/ubuntu/steps:/steps:z" \
             --volume "${actionFolder}/platforms/ubuntu/entrypoint.sh:/entrypoint.sh:z" \
@@ -67,17 +71,17 @@ class Docker {
             "${overrideCommands !== '' ? overrideCommands : `/entrypoint.sh`}"`;
   }
 
-  static getWindowsCommand(image: any, parameters: any): string {
-    const { workspace, actionFolder, unitySerial, gitPrivateToken } = parameters;
+  static getWindowsCommand(image: string, parameters: DockerParameters): string {
+    const { workspace, actionFolder, unitySerial, gitPrivateToken, dockerWorkspacePath } = parameters;
 
     return `docker run \
-            --workdir c:/github/workspace \
+            --workdir c:${dockerWorkspacePath} \
             --rm \
             ${ImageEnvironmentFactory.getEnvVarString(parameters)} \
             --env UNITY_SERIAL="${unitySerial}" \
-            --env GITHUB_WORKSPACE=c:/github/workspace \
+            --env GITHUB_WORKSPACE=c:${dockerWorkspacePath} \
             ${gitPrivateToken ? `--env GIT_PRIVATE_TOKEN="${gitPrivateToken}"` : ''} \
-            --volume "${workspace}":"c:/github/workspace" \
+            --volume "${workspace}":"c:${dockerWorkspacePath}" \
             --volume "c:/regkeys":"c:/regkeys" \
             --volume "C:/Program Files (x86)/Microsoft Visual Studio":"C:/Program Files (x86)/Microsoft Visual Studio" \
             --volume "C:/Program Files (x86)/Windows Kits":"C:/Program Files (x86)/Windows Kits" \

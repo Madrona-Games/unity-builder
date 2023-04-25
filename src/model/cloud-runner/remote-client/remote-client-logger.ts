@@ -1,4 +1,4 @@
-import CloudRunnerLogger from '../services/cloud-runner-logger';
+import CloudRunnerLogger from '../services/core/cloud-runner-logger';
 
 export class RemoteClientLogger {
   public static log(message: string) {
@@ -13,7 +13,7 @@ export class RemoteClientLogger {
     CloudRunnerLogger.log(`[Client][Diagnostic] ${message}`);
   }
 
-  public static logWarning(message) {
+  public static logWarning(message: string) {
     CloudRunnerLogger.logWarning(message);
   }
 }

@@ -2,24 +2,25 @@ import { Command } from 'commander-ts';
 import { BuildParameters, CloudRunner, ImageTag, Input } from '..';
 import * as core from '@actions/core';
 import { ActionYamlReader } from '../input-readers/action-yaml';
-import CloudRunnerLogger from '../cloud-runner/services/cloud-runner-logger';
-import CloudRunnerQueryOverride from '../cloud-runner/services/cloud-runner-query-override';
+import CloudRunnerLogger from '../cloud-runner/services/core/cloud-runner-logger';
+import CloudRunnerQueryOverride from '../cloud-runner/options/cloud-runner-query-override';
 import { CliFunction, CliFunctionsRepository } from './cli-functions-repository';
 import { Caching } from '../cloud-runner/remote-client/caching';
-import { LfsHashing } from '../cloud-runner/services/lfs-hashing';
+import { LfsHashing } from '../cloud-runner/services/utility/lfs-hashing';
 import { RemoteClient } from '../cloud-runner/remote-client';
-import CloudRunnerOptionsReader from '../cloud-runner/services/cloud-runner-options-reader';
+import CloudRunnerOptionsReader from '../cloud-runner/options/cloud-runner-options-reader';
 import GitHub from '../github';
-import { TaskParameterSerializer } from '../cloud-runner/services/task-parameter-serializer';
-import { CloudRunnerFolders } from '../cloud-runner/services/cloud-runner-folders';
-import { CloudRunnerSystem } from '../cloud-runner/services/cloud-runner-system';
+import { CloudRunnerFolders } from '../cloud-runner/options/cloud-runner-folders';
+import { CloudRunnerSystem } from '../cloud-runner/services/core/cloud-runner-system';
+import { OptionValues } from 'commander';
+import { InputKey } from '../input';
 
 export class Cli {
-  public static options;
+  public static options: OptionValues | undefined;
   static get isCliMode() {
     return Cli.options !== undefined && Cli.options.mode !== undefined && Cli.options.mode !== '';
   }
-  public static query(key, alternativeKey) {
+  public static query(key: string, alternativeKey: string) {
     if (Cli.options && Cli.options[key] !== undefined) {
       return Cli.options[key];
     }
@@ -61,22 +62,24 @@ export class Cli {
 
   static async RunCli(): Promise<void> {
     GitHub.githubInputEnabled = false;
-    if (Cli.options['populateOverride'] === `true`) {
+    if (Cli.options!['populateOverride'] === `true`) {
       await CloudRunnerQueryOverride.PopulateQueryOverrideInput();
     }
-    if (Cli.options['logInput']) {
+    if (Cli.options!['logInput']) {
       Cli.logInput();
     }
-    const results = CliFunctionsRepository.GetCliFunctions(Cli.options.mode);
+    const results = CliFunctionsRepository.GetCliFunctions(Cli.options?.mode);
     CloudRunnerLogger.log(`Entrypoint: ${results.key}`);
-    Cli.options.versioning = 'None';
+    Cli.options!.versioning = 'None';
 
-    const buildParameter = TaskParameterSerializer.readBuildParameterFromEnvironment();
+    CloudRunner.buildParameters = await BuildParameters.create();
+    CloudRunner.buildParameters.buildGuid = process.env.BUILD_GUID || ``;
     CloudRunnerLogger.log(`Build Params:
-      ${JSON.stringify(buildParameter, undefined, 4)}
+      ${JSON.stringify(CloudRunner.buildParameters, undefined, 4)}
     `);
-    CloudRunner.buildParameters = buildParameter;
-    CloudRunner.lockedWorkspace = process.env.LOCKED_WORKSPACE;
+    CloudRunner.lockedWorkspace = process.env.LOCKED_WORKSPACE || ``;
+    CloudRunnerLogger.log(`Locked Workspace: ${CloudRunner.lockedWorkspace}`);
+    await CloudRunner.setup(CloudRunner.buildParameters);
 
     return await results.target[results.propertyKey](Cli.options);
   }
@@ -88,14 +91,15 @@ export class Cli {
     const properties = CloudRunnerOptionsReader.GetProperties();
     for (const element of properties) {
       if (
-        Input[element] !== undefined &&
-        Input[element] !== '' &&
-        typeof Input[element] !== `function` &&
+        element in Input &&
+        Input[element as InputKey] !== undefined &&
+        Input[element as InputKey] !== '' &&
+        typeof Input[element as InputKey] !== `function` &&
         element !== 'length' &&
         element !== 'cliOptions' &&
         element !== 'prototype'
       ) {
-        core.info(`${element} ${Input[element]}`);
+        core.info(`${element} ${Input[element as InputKey]}`);
       }
     }
     core.info(`\n`);
@@ -113,12 +117,16 @@ export class Cli {
   public static async asyncronousWorkflow(): Promise<string> {
     const buildParameter = await BuildParameters.create();
     const baseImage = new ImageTag(buildParameter);
+    await CloudRunner.setup(buildParameter);
 
     return await CloudRunner.run(buildParameter, baseImage.toString());
   }
 
   @CliFunction(`checks-update`, `runs a cloud runner build`)
   public static async checksUpdate() {
+    const buildParameter = await BuildParameters.create();
+
+    await CloudRunner.setup(buildParameter);
     const input = JSON.parse(process.env.CHECKS_UPDATE || ``);
     core.info(`Checks Update ${process.env.CHECKS_UPDATE}`);
     if (input.mode === `create`) {
@@ -182,28 +190,13 @@ export class Cli {
       `build-${CloudRunner.buildParameters.buildGuid}`,
     );
 
-    if (!CloudRunner.buildParameters.retainWorkspace) {
+    if (!BuildParameters.shouldUseRetainedWorkspaceMode(CloudRunner.buildParameters)) {
       await CloudRunnerSystem.Run(
         `rm -r ${CloudRunnerFolders.ToLinuxFolder(CloudRunnerFolders.uniqueCloudRunnerJobFolderAbsolute)}`,
       );
     }
 
     await RemoteClient.runCustomHookFiles(`after-build`);
-
-    const parameters = await BuildParameters.create();
-    CloudRunner.setup(parameters);
-    if (parameters.constantGarbageCollection) {
-      await CloudRunnerSystem.Run(
-        `find /${CloudRunnerFolders.ToLinuxFolder(CloudRunnerFolders.buildVolumeFolder)}/ -name '*.*' -mmin +${
-          parameters.garbageCollectionMaxAge * 60
-        } -delete`,
-      );
-      await CloudRunnerSystem.Run(
-        `find ${CloudRunnerFolders.ToLinuxFolder(CloudRunnerFolders.cacheFolderForAllFull)} -name '*.*' -mmin +${
-          parameters.garbageCollectionMaxAge * 60
-        } -delete`,
-      );
-    }
 
     return new Promise((result) => result(``));
   }

@@ -2,10 +2,11 @@ import { BuildParameters, ImageTag } from '../..';
 import CloudRunner from '../cloud-runner';
 import UnityVersioning from '../../unity-versioning';
 import { Cli } from '../../cli/cli';
-import CloudRunnerOptions from '../cloud-runner-options';
+import CloudRunnerOptions from '../options/cloud-runner-options';
 import setups from './cloud-runner-suite.test';
+import { OptionValues } from 'commander';
 
-async function CreateParameters(overrides) {
+async function CreateParameters(overrides: OptionValues | undefined) {
   if (overrides) Cli.options = overrides;
 
   return BuildParameters.create();
@@ -14,7 +15,7 @@ describe('Cloud Runner Async Workflows', () => {
   setups();
   it('Responds', () => {});
 
-  if (CloudRunnerOptions.cloudRunnerDebug && CloudRunnerOptions.cloudRunnerCluster !== `local-docker`) {
+  if (CloudRunnerOptions.cloudRunnerDebug && CloudRunnerOptions.providerStrategy !== `local-docker`) {
     it('Async Workflows', async () => {
       // Setup parameters
       const buildParameter = await CreateParameters({
