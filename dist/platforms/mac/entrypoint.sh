@@ -4,18 +4,24 @@
 # Create directories for license activation
 #
 
+ps aux
+
 sudo mkdir /Library/Application\ Support/Unity
 sudo chmod -R 777 /Library/Application\ Support/Unity
 
 ACTIVATE_LICENSE_PATH="$ACTION_FOLDER/BlankProject"
 mkdir -p "$ACTIVATE_LICENSE_PATH"
+ps aux
 
 #
 # Run steps
 #
 source $ACTION_FOLDER/platforms/mac/steps/activate.sh
+ps aux
 source $ACTION_FOLDER/platforms/mac/steps/build.sh
+ps aux
 source $ACTION_FOLDER/platforms/mac/steps/return_license.sh
+ps aux
 
 #
 # Remove license activation directory
@@ -23,6 +29,8 @@ source $ACTION_FOLDER/platforms/mac/steps/return_license.sh
 
 sudo rm -r /Library/Application\ Support/Unity
 rm -r "$ACTIVATE_LICENSE_PATH"
+
+ps aux
 
 #
 # Instructions for debugging
@@ -45,4 +53,9 @@ fi;
 # Exit with code from the build step.
 #
 
+ps aux
+
 exit $BUILD_EXIT_CODE
+
+ps aux
+
