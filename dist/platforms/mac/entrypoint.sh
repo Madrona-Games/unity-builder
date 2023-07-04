@@ -55,7 +55,23 @@ fi;
 
 ps aux
 
-exit $BUILD_EXIT_CODE
+pids=$(pgrep -f /Applications/Unity)
+
+# Check if any matching processes were found
+if [[ -n "$pids" ]]; then
+    echo "Processes found with 'dotnet' in their command:"
+    echo "$pids"
+
+    # Kill each process
+    for pid in $pids; do
+        kill $pid
+    done
+
+    echo "Processes killed successfully."
+else
+    echo "No processes found with 'dotnet' in their command."
+fi
 
 ps aux
 
+exit $BUILD_EXIT_CODE
