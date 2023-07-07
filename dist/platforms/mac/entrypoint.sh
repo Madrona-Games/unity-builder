@@ -62,7 +62,7 @@ if [[ -n "$pids_combined" ]]; then
 
     # Kill each process
     for pid in $pids_combined; do
-        kill $pid
+        kill -9 $pid
     done
 
     echo "Processes killed successfully."
