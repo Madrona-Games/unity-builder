@@ -4,8 +4,6 @@
 # Create directories for license activation
 #
 
-ps aux
-
 sudo mkdir /Library/Application\ Support/Unity
 sudo chmod -R 777 /Library/Application\ Support/Unity
 
@@ -45,31 +43,5 @@ fi;
 #
 # Exit with code from the build step.
 #
-
-ps aux
-
-# Get the process IDs (PIDs) of processes containing "dotnet" and "/Applications/Unity"
-pids_dotnet=$(pgrep -f dotnet)
-pids_unity=$(pgrep -f /Applications/Unity)
-
-# Combine the PIDs from both searches
-pids_combined="$pids_dotnet $pids_unity"
-
-# Check if any matching processes were found
-if [[ -n "$pids_combined" ]]; then
-    echo "Processes found with 'dotnet' or '/Applications/Unity' in their command:"
-    echo "$pids_combined"
-
-    # Kill each process
-    for pid in $pids_combined; do
-        kill -9 $pid
-    done
-
-    echo "Processes killed successfully."
-else
-    echo "No processes found with 'dotnet' or '/Applications/Unity' in their command."
-fi
-
-ps aux
 
 exit $BUILD_EXIT_CODE
