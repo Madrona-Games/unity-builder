@@ -29,6 +29,7 @@ class BuildParameters {
   public buildFile!: string;
   public buildMethod!: string;
   public buildVersion!: string;
+  public manualExit!: boolean;
   public androidVersionCode!: string;
   public androidKeystoreName!: string;
   public androidKeystoreBase64!: string;
@@ -42,6 +43,7 @@ class BuildParameters {
 
   public customParameters!: string;
   public sshAgent!: string;
+  public sshPublicKeysDirectoryPath!: string;
   public providerStrategy!: string;
   public gitPrivateToken!: string;
   public awsStackName!: string;
@@ -138,6 +140,7 @@ class BuildParameters {
       buildFile,
       buildMethod: Input.buildMethod,
       buildVersion,
+      manualExit: Input.manualExit,
       androidVersionCode,
       androidKeystoreName: Input.androidKeystoreName,
       androidKeystoreBase64: Input.androidKeystoreBase64,
@@ -150,6 +153,7 @@ class BuildParameters {
       androidSymbolType: androidSymbolExportType,
       customParameters: Input.customParameters,
       sshAgent: Input.sshAgent,
+      sshPublicKeysDirectoryPath: Input.sshPublicKeysDirectoryPath,
       gitPrivateToken: Input.gitPrivateToken || (await GithubCliReader.GetGitHubAuthToken()),
       chownFilesTo: Input.chownFilesTo,
       providerStrategy: CloudRunnerOptions.providerStrategy,

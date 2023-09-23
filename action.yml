@@ -31,6 +31,10 @@ inputs:
     required: false
     default: ''
     description: 'Path to a Namespace.Class.StaticMethod to run to perform the build.'
+  manualExit:
+    required: false
+    default: ''
+    description: 'Suppresses `-quit`. Exit your build method using `EditorApplication.Exit(0)` instead.'
   customParameters:
     required: false
     default: ''
@@ -85,6 +89,10 @@ inputs:
     required: false
     default: ''
     description: 'SSH Agent path to forward to the container'
+  sshPublicKeysDirectoryPath:
+    required: false
+    default: ''
+    description: 'Path to a directory containing SSH public keys to forward to the container.'
   gitPrivateToken:
     required: false
     default: ''

@@ -126,6 +126,12 @@ class Input {
     return Input.getInput('buildMethod') || ''; // Processed in docker file
   }
 
+  static get manualExit(): boolean {
+    const input = Input.getInput('manualExit') || false;
+
+    return input === 'true';
+  }
+
   static get customParameters(): string {
     return Input.getInput('customParameters') || '';
   }
@@ -176,6 +182,10 @@ class Input {
 
   static get sshAgent(): string {
     return Input.getInput('sshAgent') || '';
+  }
+
+  static get sshPublicKeysDirectoryPath(): string {
+    return Input.getInput('sshPublicKeysDirectoryPath') || '';
   }
 
   static get gitPrivateToken(): string | undefined {
