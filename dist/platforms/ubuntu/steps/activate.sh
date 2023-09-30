@@ -4,10 +4,6 @@
 echo "Changing to \"$ACTIVATE_LICENSE_PATH\" directory."
 pushd "$ACTIVATE_LICENSE_PATH"
 
-echo Creating license dir
-mkdir -p /root/.cache/unity3d
-chmod 777 /root/.cache/unity3d
-
 if [[ -n "$UNITY_LICENSE" ]] || [[ -n "$UNITY_LICENSE_FILE" ]]; then
   #
   # PERSONAL LICENSE MODE
