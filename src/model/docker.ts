@@ -57,6 +57,7 @@ class Docker {
     const commandPrefix = image === `alpine` ? `/bin/sh` : `/bin/bash`;
 
     return `docker run \
+            --network host \
             --workdir ${dockerWorkspacePath} \
             --rm \
             ${ImageEnvironmentFactory.getEnvVarString(parameters, additionalVariables)} \
