@@ -49,6 +49,7 @@ class BuildParameters {
   public dockerIsolationMode!: string;
   public containerRegistryRepository!: string;
   public containerRegistryImageVersion!: string;
+  public buildOnHost!: boolean;
 
   public customParameters!: string;
   public sshAgent!: string;
@@ -182,6 +183,7 @@ class BuildParameters {
       dockerIsolationMode: Input.dockerIsolationMode,
       containerRegistryRepository: Input.containerRegistryRepository,
       containerRegistryImageVersion: Input.containerRegistryImageVersion,
+      buildOnHost: Input.buildOnHost,
       providerStrategy: CloudRunnerOptions.providerStrategy,
       buildPlatform: CloudRunnerOptions.buildPlatform,
       kubeConfig: CloudRunnerOptions.kubeConfig,
