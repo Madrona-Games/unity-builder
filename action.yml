@@ -146,6 +146,12 @@ inputs:
     required: false
     default: '3'
     description: 'Container registry image version. Only applicable if customImage is not set.'
+  buildOnHost:
+    required: false
+    default: 'false'
+    description:
+      'Whether to run the build on the host machine instead of in a container. This is useful for builds that have
+      issues with running in a container.'
   allowDirtyBuild:
     required: false
     default: ''

@@ -36,7 +36,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(42186));
 const model_1 = __nccwpck_require__(41359);
 const cli_1 = __nccwpck_require__(55651);
-const mac_builder_1 = __importDefault(__nccwpck_require__(39364));
+const host_builder_1 = __importDefault(__nccwpck_require__(8108));
 const platform_setup_1 = __importDefault(__nccwpck_require__(64423));
 async function runMain() {
     try {
@@ -53,14 +53,18 @@ async function runMain() {
         if (buildParameters.providerStrategy === 'local') {
             core.info('Building locally');
             await platform_setup_1.default.setup(buildParameters, actionFolder);
-            exitCode =
-                process.platform === 'darwin'
-                    ? await mac_builder_1.default.run(actionFolder)
-                    : await model_1.Docker.run(baseImage.toString(), {
-                        workspace,
-                        actionFolder,
-                        ...buildParameters,
-                    });
+            if ((process.platform !== 'linux' && buildParameters.buildOnHost) || process.platform === 'darwin') {
+                core.info('Building on host machine');
+                exitCode = await host_builder_1.default.run(buildParameters, actionFolder);
+            }
+            else {
+                core.info('Building in Docker container');
+                exitCode = await model_1.Docker.run(baseImage.toString(), {
+                    workspace,
+                    actionFolder,
+                    ...buildParameters,
+                });
+            }
         }
         else {
             await model_1.Orchestrator.run(buildParameters, baseImage.toString());
@@ -326,6 +330,7 @@ class BuildParameters {
             dockerIsolationMode: input_1.default.dockerIsolationMode,
             containerRegistryRepository: input_1.default.containerRegistryRepository,
             containerRegistryImageVersion: input_1.default.containerRegistryImageVersion,
+            buildOnHost: input_1.default.buildOnHost,
             providerStrategy: orchestrator_options_1.default.providerStrategy,
             buildPlatform: orchestrator_options_1.default.buildPlatform,
             kubeConfig: orchestrator_options_1.default.kubeConfig,
@@ -1087,6 +1092,74 @@ exports["default"] = GitHub;
 
 /***/ }),
 
+/***/ 8108:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const exec_1 = __nccwpck_require__(71514);
+class HostBuilder {
+    static async run(buildParameters, actionFolder, silent = false) {
+        this.setEnvironmentVariables(buildParameters, actionFolder);
+        switch (process.platform) {
+            case 'win32':
+                process.env.UNITY_PATH = `C:/Program Files/Unity/Hub/Editor/${buildParameters.editorVersion}`;
+                return await this.runWindows(actionFolder, silent);
+            case 'darwin':
+                return await this.runMac(actionFolder, silent);
+            default:
+                throw new Error(`Operating System, ${process.platform}, is not supported.`);
+        }
+    }
+    static async runWindows(actionFolder, silent) {
+        const buildScript = `${actionFolder}/platforms/windows/local/entrypoint.ps1`;
+        return await (0, exec_1.exec)('Powershell.exe', [`-File`, `${buildScript}`, `-ExecutionPolicy`, `Bypass`, `-NoProfile`, `-NonInteractive`], {
+            silent,
+            ignoreReturnCode: true,
+        });
+    }
+    static async runMac(actionFolder, silent) {
+        return await (0, exec_1.exec)('bash', [`${actionFolder}/platforms/mac/entrypoint.sh`], {
+            silent,
+            ignoreReturnCode: true,
+        });
+    }
+    static async setEnvironmentVariables(buildParameters, actionFolder) {
+        process.env.ACTION_FOLDER = actionFolder;
+        process.env.UNITY_VERSION = buildParameters.editorVersion;
+        process.env.UNITY_SERIAL = buildParameters.unitySerial;
+        process.env.UNITY_LICENSING_SERVER = buildParameters.unityLicensingServer;
+        process.env.SKIP_ACTIVATION = buildParameters.skipActivation;
+        process.env.PROJECT_PATH = buildParameters.projectPath;
+        process.env.BUILD_PROFILE = buildParameters.buildProfile;
+        process.env.BUILD_TARGET = buildParameters.targetPlatform;
+        process.env.BUILD_NAME = buildParameters.buildName;
+        process.env.BUILD_PATH = buildParameters.buildPath;
+        process.env.BUILD_FILE = buildParameters.buildFile;
+        process.env.BUILD_METHOD = buildParameters.buildMethod;
+        process.env.VERSION = buildParameters.buildVersion;
+        process.env.ANDROID_VERSION_CODE = buildParameters.androidVersionCode;
+        process.env.ANDROID_KEYSTORE_NAME = buildParameters.androidKeystoreName;
+        process.env.ANDROID_KEYSTORE_BASE64 = buildParameters.androidKeystoreBase64;
+        process.env.ANDROID_KEYSTORE_PASS = buildParameters.androidKeystorePass;
+        process.env.ANDROID_KEYALIAS_NAME = buildParameters.androidKeyaliasName;
+        process.env.ANDROID_KEYALIAS_PASS = buildParameters.androidKeyaliasPass;
+        process.env.ANDROID_TARGET_SDK_VERSION = buildParameters.androidTargetSdkVersion;
+        process.env.ANDROID_SDK_MANAGER_PARAMETERS = buildParameters.androidSdkManagerParameters;
+        process.env.ANDROID_EXPORT_TYPE = buildParameters.androidExportType;
+        process.env.ANDROID_SYMBOL_TYPE = buildParameters.androidSymbolType;
+        process.env.CUSTOM_PARAMETERS = buildParameters.customParameters;
+        process.env.CHOWN_FILES_TO = buildParameters.chownFilesTo;
+        process.env.MANUAL_EXIT = buildParameters.manualExit.toString();
+        process.env.ENABLE_GPU = buildParameters.enableGpu.toString();
+    }
+}
+exports["default"] = HostBuilder;
+
+
+/***/ }),
+
 /***/ 25145:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -1826,6 +1899,10 @@ class Input {
     static get skipActivation() {
         return Input.getInput('skipActivation')?.toLowerCase() ?? 'false';
     }
+    static get buildOnHost() {
+        const input = Input.getInput('buildOnHost') ?? 'false';
+        return input === 'true';
+    }
     static ToEnvVarFormat(input) {
         if (input.toUpperCase() === input) {
             return input;
@@ -1838,26 +1915,6 @@ class Input {
     }
 }
 exports["default"] = Input;
-
-
-/***/ }),
-
-/***/ 39364:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const exec_1 = __nccwpck_require__(71514);
-class MacBuilder {
-    static async run(actionFolder, silent = false) {
-        return await (0, exec_1.exec)('bash', [`${actionFolder}/platforms/mac/entrypoint.sh`], {
-            silent,
-            ignoreReturnCode: true,
-        });
-    }
-}
-exports["default"] = MacBuilder;
 
 
 /***/ }),
@@ -10175,7 +10232,7 @@ class PlatformSetup {
                 platform_setup_1.SetupWindows.setup(buildParameters);
                 break;
             case 'darwin':
-                await platform_setup_1.SetupMac.setup(buildParameters, actionFolder);
+                await platform_setup_1.SetupMac.setup(buildParameters);
                 break;
             // Add other baseOS's here
         }
@@ -10261,7 +10318,7 @@ const exec_1 = __nccwpck_require__(71514);
 const cache_1 = __nccwpck_require__(27799);
 const node_fs_1 = __importDefault(__nccwpck_require__(87561));
 class SetupMac {
-    static async setup(buildParameters, actionFolder) {
+    static async setup(buildParameters) {
         const unityEditorPath = `/Applications/Unity/Hub/Editor/${buildParameters.editorVersion}/Unity.app/Contents/MacOS/Unity`;
         if (!node_fs_1.default.existsSync(this.unityHubExecPath.replace(/"/g, ''))) {
             await SetupMac.installUnityHub(buildParameters);
@@ -10269,7 +10326,6 @@ class SetupMac {
         if (!node_fs_1.default.existsSync(unityEditorPath.replace(/"/g, ''))) {
             await SetupMac.installUnity(buildParameters);
         }
-        await SetupMac.setEnvironmentVariables(buildParameters, actionFolder);
     }
     static async installUnityHub(buildParameters, silent = false) {
         // Can't use quotes in the cache package so we need a different path
@@ -10390,37 +10446,6 @@ class SetupMac {
         if (buildParameters.cacheUnityInstallationOnMac) {
             await (0, cache_1.saveCache)([unityEditorPath], key);
         }
-    }
-    static async setEnvironmentVariables(buildParameters, actionFolder) {
-        // Need to set environment variables from here because we execute
-        // the scripts on the host for mac
-        process.env.ACTION_FOLDER = actionFolder;
-        process.env.UNITY_VERSION = buildParameters.editorVersion;
-        process.env.UNITY_SERIAL = buildParameters.unitySerial;
-        process.env.UNITY_LICENSING_SERVER = buildParameters.unityLicensingServer;
-        process.env.SKIP_ACTIVATION = buildParameters.skipActivation;
-        process.env.PROJECT_PATH = buildParameters.projectPath;
-        process.env.BUILD_PROFILE = buildParameters.buildProfile;
-        process.env.BUILD_TARGET = buildParameters.targetPlatform;
-        process.env.BUILD_NAME = buildParameters.buildName;
-        process.env.BUILD_PATH = buildParameters.buildPath;
-        process.env.BUILD_FILE = buildParameters.buildFile;
-        process.env.BUILD_METHOD = buildParameters.buildMethod;
-        process.env.VERSION = buildParameters.buildVersion;
-        process.env.ANDROID_VERSION_CODE = buildParameters.androidVersionCode;
-        process.env.ANDROID_KEYSTORE_NAME = buildParameters.androidKeystoreName;
-        process.env.ANDROID_KEYSTORE_BASE64 = buildParameters.androidKeystoreBase64;
-        process.env.ANDROID_KEYSTORE_PASS = buildParameters.androidKeystorePass;
-        process.env.ANDROID_KEYALIAS_NAME = buildParameters.androidKeyaliasName;
-        process.env.ANDROID_KEYALIAS_PASS = buildParameters.androidKeyaliasPass;
-        process.env.ANDROID_TARGET_SDK_VERSION = buildParameters.androidTargetSdkVersion;
-        process.env.ANDROID_SDK_MANAGER_PARAMETERS = buildParameters.androidSdkManagerParameters;
-        process.env.ANDROID_EXPORT_TYPE = buildParameters.androidExportType;
-        process.env.ANDROID_SYMBOL_TYPE = buildParameters.androidSymbolType;
-        process.env.CUSTOM_PARAMETERS = buildParameters.customParameters;
-        process.env.CHOWN_FILES_TO = buildParameters.chownFilesTo;
-        process.env.MANUAL_EXIT = buildParameters.manualExit.toString();
-        process.env.ENABLE_GPU = buildParameters.enableGpu.toString();
     }
 }
 SetupMac.unityHubBasePath = `/Applications/"Unity Hub.app"`;
