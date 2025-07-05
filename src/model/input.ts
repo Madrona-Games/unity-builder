@@ -282,6 +282,12 @@ class Input {
     return Input.getInput('skipActivation')?.toLowerCase() ?? 'false';
   }
 
+  static get buildOnHost(): boolean {
+    const input = Input.getInput('buildOnHost') ?? 'false';
+
+    return input === 'true';
+  }
+
   public static ToEnvVarFormat(input: string) {
     if (input.toUpperCase() === input) {
       return input;

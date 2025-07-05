@@ -9,7 +9,7 @@ class SetupMac {
   static unityHubBasePath = `/Applications/"Unity Hub.app"`;
   static unityHubExecPath = `${SetupMac.unityHubBasePath}/Contents/MacOS/"Unity Hub"`;
 
-  public static async setup(buildParameters: BuildParameters, actionFolder: string) {
+  public static async setup(buildParameters: BuildParameters) {
     const unityEditorPath = `/Applications/Unity/Hub/Editor/${buildParameters.editorVersion}/Unity.app/Contents/MacOS/Unity`;
 
     if (!fs.existsSync(this.unityHubExecPath.replace(/"/g, ''))) {
@@ -19,8 +19,6 @@ class SetupMac {
     if (!fs.existsSync(unityEditorPath.replace(/"/g, ''))) {
       await SetupMac.installUnity(buildParameters);
     }
-
-    await SetupMac.setEnvironmentVariables(buildParameters, actionFolder);
   }
 
   private static async installUnityHub(buildParameters: BuildParameters, silent = false) {
@@ -162,38 +160,6 @@ class SetupMac {
     if (buildParameters.cacheUnityInstallationOnMac) {
       await saveCache([unityEditorPath], key);
     }
-  }
-
-  private static async setEnvironmentVariables(buildParameters: BuildParameters, actionFolder: string) {
-    // Need to set environment variables from here because we execute
-    // the scripts on the host for mac
-    process.env.ACTION_FOLDER = actionFolder;
-    process.env.UNITY_VERSION = buildParameters.editorVersion;
-    process.env.UNITY_SERIAL = buildParameters.unitySerial;
-    process.env.UNITY_LICENSING_SERVER = buildParameters.unityLicensingServer;
-    process.env.SKIP_ACTIVATION = buildParameters.skipActivation;
-    process.env.PROJECT_PATH = buildParameters.projectPath;
-    process.env.BUILD_PROFILE = buildParameters.buildProfile;
-    process.env.BUILD_TARGET = buildParameters.targetPlatform;
-    process.env.BUILD_NAME = buildParameters.buildName;
-    process.env.BUILD_PATH = buildParameters.buildPath;
-    process.env.BUILD_FILE = buildParameters.buildFile;
-    process.env.BUILD_METHOD = buildParameters.buildMethod;
-    process.env.VERSION = buildParameters.buildVersion;
-    process.env.ANDROID_VERSION_CODE = buildParameters.androidVersionCode;
-    process.env.ANDROID_KEYSTORE_NAME = buildParameters.androidKeystoreName;
-    process.env.ANDROID_KEYSTORE_BASE64 = buildParameters.androidKeystoreBase64;
-    process.env.ANDROID_KEYSTORE_PASS = buildParameters.androidKeystorePass;
-    process.env.ANDROID_KEYALIAS_NAME = buildParameters.androidKeyaliasName;
-    process.env.ANDROID_KEYALIAS_PASS = buildParameters.androidKeyaliasPass;
-    process.env.ANDROID_TARGET_SDK_VERSION = buildParameters.androidTargetSdkVersion;
-    process.env.ANDROID_SDK_MANAGER_PARAMETERS = buildParameters.androidSdkManagerParameters;
-    process.env.ANDROID_EXPORT_TYPE = buildParameters.androidExportType;
-    process.env.ANDROID_SYMBOL_TYPE = buildParameters.androidSymbolType;
-    process.env.CUSTOM_PARAMETERS = buildParameters.customParameters;
-    process.env.CHOWN_FILES_TO = buildParameters.chownFilesTo;
-    process.env.MANUAL_EXIT = buildParameters.manualExit.toString();
-    process.env.ENABLE_GPU = buildParameters.enableGpu.toString();
   }
 }
 
