@@ -97,7 +97,7 @@ if ( "$Env:BUILD_TARGET" -eq "Android" -and -not ([string]::IsNullOrEmpty("$Env:
     # Ensure the project settings are pointed at the correct path
     $unitySettingsPath = "$Env:UNITY_PROJECT_PATH\ProjectSettings\ProjectSettings.asset"
     $fileContent = Get-Content -Path "$unitySettingsPath"
-    $fileContent = $fileContent -replace "AndroidKeystoreName:\s+.*", "AndroidKeystoreName: $keystorePath"
+    $fileContent = $fileContent -replace "AndroidKeystoreName:\s+.*", "AndroidKeystoreName: '{inproject}: android.keystore'"
     $fileContent | Set-Content -Path "$unitySettingsPath"
 
     Write-Output "Created Android keystore."
