@@ -100,6 +100,14 @@ if ( "$Env:BUILD_TARGET" -eq "Android" -and -not ([string]::IsNullOrEmpty("$Env:
     $fileContent = $fileContent -replace "AndroidKeystoreName:\s+.*", "AndroidKeystoreName: '{inproject}: android.keystore'"
     $fileContent | Set-Content -Path "$unitySettingsPath"
 
+    # Clean up Android build cache
+    $androidBeeFolder = "$Env:UNITY_PROJECT_PATH\Library\Bee\Android"
+    if (Test-Path -Path $androidBeeFolder) {
+      Write-Output "Removing Android build cache folder."
+      Remove-Item -Path $androidBeeFolder -Recurse -Force
+      Write-Output "Removed Android build cache folder."
+    }
+
     Write-Output "Created Android keystore."
 }
 else {
