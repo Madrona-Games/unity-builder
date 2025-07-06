@@ -101,10 +101,10 @@ if ( "$Env:BUILD_TARGET" -eq "Android" -and -not ([string]::IsNullOrEmpty("$Env:
     $fileContent | Set-Content -Path "$unitySettingsPath"
 
     # Clean up Android build cache
-    $androidBeeFolder = "$Env:UNITY_PROJECT_PATH\Library\Bee\Android"
+    $androidBeeFolder = "$Env:UNITY_PROJECT_PATH/Library/Bee/Android".Replace('\', '/')
     if (Test-Path -Path $androidBeeFolder) {
       Write-Output "Removing Android build cache folder."
-      Remove-Item -Path $androidBeeFolder -Recurse -Force
+      bash -c "rm -rf '$androidBeeFolder'"
       Write-Output "Removed Android build cache folder."
     }
 
