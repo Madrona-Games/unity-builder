@@ -5,9 +5,9 @@ class ValidateWindows {
   public static validate(buildParameters: BuildParameters) {
     ValidateWindows.validateWindowsPlatformRequirements(buildParameters.targetPlatform);
 
-    const { unityLicensingServer } = buildParameters;
+    const { unityLicensingServer, skipActivation } = buildParameters;
     const hasLicensingCredentials = process.env.UNITY_EMAIL && process.env.UNITY_PASSWORD;
-    const hasValidLicensingStrategy = hasLicensingCredentials || unityLicensingServer;
+    const hasValidLicensingStrategy = hasLicensingCredentials || unityLicensingServer || skipActivation === 'true';
 
     if (!hasValidLicensingStrategy) {
       throw new Error(`Unity email and password or alternatively a Unity licensing server url must be set for 

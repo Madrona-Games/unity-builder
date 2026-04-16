@@ -10510,9 +10510,9 @@ const node_fs_1 = __importDefault(__nccwpck_require__(87561));
 class ValidateWindows {
     static validate(buildParameters) {
         ValidateWindows.validateWindowsPlatformRequirements(buildParameters.targetPlatform);
-        const { unityLicensingServer } = buildParameters;
+        const { unityLicensingServer, skipActivation } = buildParameters;
         const hasLicensingCredentials = process.env.UNITY_EMAIL && process.env.UNITY_PASSWORD;
-        const hasValidLicensingStrategy = hasLicensingCredentials || unityLicensingServer;
+        const hasValidLicensingStrategy = hasLicensingCredentials || unityLicensingServer || skipActivation === 'true';
         if (!hasValidLicensingStrategy) {
             throw new Error(`Unity email and password or alternatively a Unity licensing server url must be set for 
                        Windows based builds to authenticate the license. Make sure to set them inside UNITY_EMAIL
