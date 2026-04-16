@@ -273,24 +273,26 @@ class BuildParameters {
             }
         }
         let unitySerial = '';
-        if (input_1.default.unityLicensingServer === '') {
-            if (!input_1.default.unitySerial && github_1.default.githubInputEnabled) {
-                // No serial was present, so it is a personal license that we need to convert
-                if (!input_1.default.unityLicense) {
-                    throw new Error(`Missing Unity License File and no Serial was found. If this
+        if (input_1.default.skipActivation === 'false') {
+            if (input_1.default.unityLicensingServer === '') {
+                if (!input_1.default.unitySerial && github_1.default.githubInputEnabled) {
+                    // No serial was present, so it is a personal license that we need to convert
+                    if (!input_1.default.unityLicense) {
+                        throw new Error(`Missing Unity License File and no Serial was found. If this
                             is a personal license, make sure to follow the activation
                             steps and set the UNITY_LICENSE GitHub secret or enter a Unity
                             serial number inside the UNITY_SERIAL GitHub secret.`);
+                    }
+                    unitySerial = this.getSerialFromLicenseFile(input_1.default.unityLicense);
                 }
-                unitySerial = this.getSerialFromLicenseFile(input_1.default.unityLicense);
+                else {
+                    unitySerial = input_1.default.unitySerial;
+                }
             }
-            else {
-                unitySerial = input_1.default.unitySerial;
+            if (unitySerial !== undefined && unitySerial.length === 27) {
+                core.setSecret(unitySerial);
+                core.setSecret(`${unitySerial.slice(0, -4)}XXXX`);
             }
-        }
-        if (unitySerial !== undefined && unitySerial.length === 27) {
-            core.setSecret(unitySerial);
-            core.setSecret(`${unitySerial.slice(0, -4)}XXXX`);
         }
         return {
             editorVersion,
