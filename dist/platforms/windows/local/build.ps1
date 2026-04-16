@@ -172,7 +172,6 @@ $unityArgs = @(
     "-customBuildName", "`"$Env:BUILD_NAME`"",
     "-projectPath", "`"$Env:UNITY_PROJECT_PATH`"",
     "-executeMethod", "`"$Env:BUILD_METHOD`"",
-    "-buildTarget", "`"$Env:BUILD_TARGET`"",
     "-customBuildTarget", "`"$Env:BUILD_TARGET`"",
     "-customBuildPath", "`"$Env:CUSTOM_BUILD_PATH`"",
     "-customBuildProfile", "`"$Env:BUILD_PROFILE`"",
@@ -186,6 +185,13 @@ $unityArgs = @(
     "-androidSymbolType", "`"$Env:ANDROID_SYMBOL_TYPE`"",
     "-logfile", "-"
 ) + $customParametersArray
+
+if (-not $Env:BUILD_PROFILE) {
+    $unityArgs += @("-buildTarget", "`"$Env:BUILD_TARGET`"")
+}
+if ($Env:BUILD_PROFILE) {
+    $unityArgs += @("-activeBuildProfile", "`"$Env:BUILD_PROFILE`"")
+}
 
 # Remove null items as that will fail the Start-Process call
 $unityArgs = $unityArgs | Where-Object { $_ -ne $null }
