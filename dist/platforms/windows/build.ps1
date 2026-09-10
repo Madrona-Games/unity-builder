@@ -187,6 +187,14 @@ if ($Env:BUILD_PROFILE) {
     $unityArgs += @("-activeBuildProfile", "`"$Env:BUILD_PROFILE`"")
 }
 
+# Credentials are passed to the build editor even when activation was skipped
+if ($Env:UNITY_EMAIL) {
+    $unityArgs += @("-username", "`"$Env:UNITY_EMAIL`"")
+}
+if ($Env:UNITY_PASSWORD) {
+    $unityArgs += @("-password", "`"$Env:UNITY_PASSWORD`"")
+}
+
 # Remove null items as that will fail the Start-Process call
 $unityArgs = $unityArgs | Where-Object { $_ -ne $null }
 

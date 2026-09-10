@@ -165,8 +165,6 @@ $_, $customParametersArray = Invoke-Expression('Write-Output -- "" ' + $Env:CUST
 $unityArgs = @(
     "-quit",
     "-batchmode",
-    "-username", "`"$Env:UNITY_EMAIL`"",
-    "-password", "`"$Env:UNITY_PASSWORD`"",
     $unityGraphics,
     "-silent-crashes",
     "-customBuildName", "`"$Env:BUILD_NAME`"",
@@ -191,6 +189,14 @@ if (-not $Env:BUILD_PROFILE) {
 }
 if ($Env:BUILD_PROFILE) {
     $unityArgs += @("-activeBuildProfile", "`"$Env:BUILD_PROFILE`"")
+}
+
+# Credentials are passed to the build editor even when activation was skipped
+if ($Env:UNITY_EMAIL) {
+    $unityArgs += @("-username", "`"$Env:UNITY_EMAIL`"")
+}
+if ($Env:UNITY_PASSWORD) {
+    $unityArgs += @("-password", "`"$Env:UNITY_PASSWORD`"")
 }
 
 # Remove null items as that will fail the Start-Process call
