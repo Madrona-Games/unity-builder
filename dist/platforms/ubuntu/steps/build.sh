@@ -109,6 +109,15 @@ echo ""
 ls -alh "$UNITY_PROJECT_PATH"
 
 #
+# Remove stale Burst PID file
+#
+
+# Burst kills whatever PID is in Library/burst.pid on startup without checking what process it is.
+# A file left in a cached or reused Library points at an unrelated process, and because PIDs restart
+# at 1 in every container, that is often the new editor itself (killed with exit code 137).
+rm -f "$UNITY_PROJECT_PATH/Library/burst.pid"
+
+#
 # Build
 #
 

@@ -148,6 +148,18 @@ Write-Output ""
 Get-ChildItem $Env:UNITY_PROJECT_PATH
 
 #
+# Remove stale Burst PID file
+#
+
+# Burst kills whatever PID is in Library\burst.pid on startup without checking what process it is.
+# A file left in a cached or reused Library can point at an unrelated process once that PID is reused.
+$burstPidFile = "$Env:UNITY_PROJECT_PATH\Library\burst.pid"
+if (Test-Path -Path $burstPidFile)
+{
+    Remove-Item -Path $burstPidFile -Force
+}
+
+#
 # Build
 #
 
